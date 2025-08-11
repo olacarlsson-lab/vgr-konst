@@ -19,18 +19,20 @@
 
     .wrap{max-width:1000px;margin:0 auto;padding:0 12px 28px}
 
-    /* Sökfält utan rubriker – placeholders i gemener */
+    /* Sökfält – placeholders i gemener, dropdowns för konsttyp/teknik */
     #searchForm{
       display:grid;grid-template-columns:repeat(4,minmax(170px,1fr));
       gap:10px 12px;background:#fff;padding:12px;border-radius:12px;
       box-shadow:0 8px 24px rgba(0,0,0,.06)
     }
-    #searchForm input[type="search"]{
-      padding:.7rem .8rem;border:1.5px solid #d0d7de;border-radius:10px;font-size:1rem;
+    #searchForm input[type="search"], #searchForm select{
+      padding:.7rem .8rem;border:1.5px solid #d0d7de;border-radius:10px;font-size:1rem;background:#fff;
       transition:border-color .2s,box-shadow .2s
     }
     #searchForm input[type="search"]::placeholder{color:#7a8694}
-    #searchForm input[type="search"]:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 4px rgba(0,119,204,.12)}
+    #searchForm input[type="search"]:focus, #searchForm select:focus{
+      outline:none;border-color:var(--brand);box-shadow:0 0 0 4px rgba(0,119,204,.12)
+    }
     .actions{display:flex;gap:10px;align-items:stretch}
     button{
       border:none;border-radius:10px;padding:.8rem 1.1rem;font-weight:600;cursor:pointer;
@@ -54,7 +56,6 @@
     .kv{display:grid;grid-template-columns:110px 1fr;gap:6px 10px;align-items:start}
     .k{color:#5b6b7a;font-size:.9rem}
     .v{font-weight:600}
-
     .empty{margin-top:16px;color:#566;text-align:center}
 
     /* Mobilanpassning */
@@ -75,15 +76,23 @@
   <header><h1>VGR öppna konstdata – sök</h1></header>
   <div class="wrap">
 
-    <!-- Inga rubriker; placeholders i gemener -->
+    <!-- Formulär utan labels; placeholders i gemener; dropdowns för konsttyp/teknik -->
     <form id="searchForm" aria-label="Sök i datasetet">
       <input type="search" id="creatorInput" placeholder="konstnär" autocomplete="off" />
       <input type="search" id="titleInput" placeholder="titel" autocomplete="off" />
       <input type="search" id="createdInput" placeholder="framställningsår" autocomplete="off" />
-      <input type="search" id="artformInput" placeholder="konsttyp" autocomplete="off" />
-      <input type="search" id="artmediumInput" placeholder="teknik" autocomplete="off" />
+
+      <select id="artformSelect">
+        <option value="">konsttyp (alla)</option>
+      </select>
+
+      <select id="artmediumSelect">
+        <option value="">teknik (alla)</option>
+      </select>
+
       <input type="search" id="idInput" placeholder="vg-nummer" autocomplete="off" />
       <input type="search" id="olderIdInput" placeholder="äldre id" autocomplete="off" />
+
       <div class="actions">
         <button id="searchBtn" type="submit">Sök</button>
         <button id="clearBtn" type="button">Rensa</button>
@@ -107,12 +116,53 @@
       "creator":"Konstnär","title":"Titel","created":"Framställningsår",
       "artform":"Konsttyp","artmedium":"Teknik","id":"VG-nummer",[BOM_OLDER_ID_KEY]:"Äldre id"
     };
+
+    // Mappar formulärfält (obs select för artform/tech)
     const inputIdMap = {
       "creator":"creatorInput","title":"titleInput","created":"createdInput",
-      "artform":"artformInput","artmedium":"artmediumInput","id":"idInput",[BOM_OLDER_ID_KEY]:"olderIdInput"
+      "artform":"artformSelect","artmedium":"artmediumSelect","id":"idInput",[BOM_OLDER_ID_KEY]:"olderIdInput"
     };
 
     let allData = [];
+
+    // ======= Dropdown-listor (från dig, deduplicerat och städat) =======
+    const ART_FORMS = [
+      "Blandteknik","Collage","Emalj","Fotografi","Grafik","Installation","Ljud","Måleri","Objekt",
+      "Relief","Rörlig bild","Skulptur","Teckning","Textil","Övrigt"
+    ];
+
+    const ART_MEDIA_RAW = [
+      "Övrigt","Övrigt","Vävteknik","Väggmålning","Ull","Tusch/Bläck","Tusch","Träsnitt","Trärelief","Trä","Tryck",
+      "Torrnål","Textil","Textil","Temporär","Tempera","Teckning","Svartvit","Stengods/flintgods/keramik","Sten","Skulptur",
+      "Silkscreen/Serigrafi","Silkscreen","Serigrafi","Rörlig bild","Relief","porslin","Pochoir","Plast","Pastell","Pastell",
+      "Olja","Objekt","Måleri","Monotypi","Mixed media","Mezzotint","Metall","Metall","Ljud","Litografi","Linoleum","Krita",
+      "Kopparstick","Konsthantverk/Trä","Konsthantverk/Sten","Konsthantverk/Metall","Konsthantverk/Keramik","Konsthantverk/Glas",
+      "Kol","Keramikrelief","Gravyr","Grafik","Graffiti","Gouache","Glas","Gipsrelief","Gips","Färg","Fotopolymer/Fotogravyr",
+      "Fotografi","Etsning","Emalj","Emalj","Digitalt pigmenttryck","Digitalprint/Giclée","Collografi/Intaglio","Collografi",
+      "Collage","collage","Byggnadsintegrerad","Brons","Broderi","Blyerts","Blandteknik","Blandteknik","Blandteknik",
+      "Blandteknik","Blandteknik","Blandteknik","Betong","Batik","Applikation","Akvatint","Akvarell","Akryl"
+    ];
+
+    // Städa, deduplicera och sortera lista (svensk sort)
+    function uniqueSorted(list){
+      const cleaned = list
+        .map(s => (s || '').toString().trim())
+        .filter(Boolean)
+        .map(s => s === 'collage' ? 'Collage' : s.replace(/\s+/g,' ')); // fixa 'collage'
+      const uniq = [...new Set(cleaned)];
+      return uniq.sort((a,b) => a.localeCompare(b,'sv'));
+    }
+    const ART_MEDIA = uniqueSorted(ART_MEDIA_RAW);
+
+    function populateSelect(el, options, labelAll){
+      el.innerHTML = `<option value="">${labelAll}</option>`;
+      options.forEach(v=>{
+        const opt = document.createElement('option');
+        opt.value = v;
+        opt.textContent = v;
+        el.appendChild(opt);
+      });
+    }
 
     // ======= Hjälpfunktioner =======
     const removeAccents = (str) => str.normalize("NFD").replace(/\p{Diacritic}/gu,"").toLowerCase();
@@ -188,9 +238,8 @@
         return;
       }
       empty.hidden=true;
-      total.textContent = data.length >= 500 
-  ? "Totalt >500 resultat" 
-  : `Totalt ${data.length} resultat`;
+      // Visa >500 om vi träffar vårt maxlimit
+      total.textContent = data.length >= 500 ? 'Totalt >500 resultat' : `Totalt ${data.length} resultat`;
 
       data.forEach(row=>{
         const card = document.createElement('div');
@@ -227,9 +276,9 @@
       const params={}, raw={};
       for(const key in columnsMap){
         const cleanKey = key.replace(/^\uFEFF/,'');
-        const input = document.getElementById(inputIdMap[key]);
-        if(input){
-          let val = normalizeText(input.value);
+        const el = document.getElementById(inputIdMap[key]);
+        if(el){
+          let val = normalizeText(el.value);
           if(val){
             if(cleanKey==='creator') val = capitalizeWords(val);
             if(cleanKey==='older id') val = normalizeOlderIdInput(val);
@@ -242,10 +291,17 @@
 
     document.getElementById('clearBtn').addEventListener('click', ()=>{
       document.querySelectorAll('#searchForm input').forEach(i=>i.value='');
+      document.getElementById('artformSelect').value = '';
+      document.getElementById('artmediumSelect').value = '';
       fetchData({}, {}); // ladda om med standard
     });
 
-    // Start
+    // ======= Init =======
+    // Populera dropdowns
+    populateSelect(document.getElementById('artformSelect'), ART_FORMS, 'konsttyp (alla)');
+    populateSelect(document.getElementById('artmediumSelect'), ART_MEDIA, 'teknik (alla)');
+
+    // Första laddningen
     fetchData();
 
     // PWA (relativ sökväg funkar på GitHub Pages)
