@@ -188,7 +188,9 @@
         return;
       }
       empty.hidden=true;
-      total.textContent = `Totalt ${data.length} resultat`;
+      total.textContent = data.length >= 500 
+  ? "Totalt >500 resultat" 
+  : `Totalt ${data.length} resultat`;
 
       data.forEach(row=>{
         const card = document.createElement('div');
