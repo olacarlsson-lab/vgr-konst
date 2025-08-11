@@ -41,6 +41,9 @@
     #clearBtn{background:#e8eef5;color:#123}
     #clearBtn:hover{background:#dbe7f3}
 
+    /* Totaler */
+    #totalCount{margin-top:10px;font-size:.95rem;color:#444}
+
     /* Kortlayout */
     .cards{margin-top:14px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
     .card{
@@ -52,7 +55,7 @@
     .k{color:#5b6b7a;font-size:.9rem}
     .v{font-weight:600}
 
-    .empty{margin-top:16px;color:#566; text-align:center}
+    .empty{margin-top:16px;color:#566;text-align:center}
 
     /* Mobilanpassning */
     @media (max-width: 900px){
@@ -86,6 +89,9 @@
         <button id="clearBtn" type="button">Rensa</button>
       </div>
     </form>
+
+    <!-- Totaler -->
+    <div id="totalCount"></div>
 
     <div id="cards" class="cards" role="list"></div>
     <div id="empty" class="empty" hidden>Inga resultat.</div>
@@ -161,19 +167,28 @@
       }catch(err){
         document.getElementById('cards').innerHTML='';
         document.getElementById('empty').hidden=false;
+        document.getElementById('totalCount').textContent = 'Kunde inte hämta data.';
         console.error(err);
         alert('Hämtfel: '+err.message);
       }
     }
 
-    // ======= Kort-rendering =======
+    // ======= Kort-rendering + totaler =======
     function renderCards(data){
       const wrap = document.getElementById('cards');
       const empty = document.getElementById('empty');
-      wrap.innerHTML='';
+      const total = document.getElementById('totalCount');
 
-      if(!data.length){ empty.hidden=false; return; }
+      wrap.innerHTML='';
+      total.textContent='';
+
+      if(!data.length){
+        empty.hidden=false;
+        total.textContent = 'Inga resultat.';
+        return;
+      }
       empty.hidden=true;
+      total.textContent = `Totalt ${data.length} resultat`;
 
       data.forEach(row=>{
         const card = document.createElement('div');
@@ -231,7 +246,7 @@
     // Start
     fetchData();
 
-    // PWA
+    // PWA (relativ sökväg funkar på GitHub Pages)
     if('serviceWorker' in navigator){
       navigator.serviceWorker.register('./sw.js')
         .then(r=>console.log('✅ Service worker:', r.scope))
