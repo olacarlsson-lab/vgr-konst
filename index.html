@@ -72,6 +72,21 @@
       background:#d2ebff; color:#004a99;
     }
 
+    /* Expanderbar urvalslista */
+    .sel-list{
+      margin-top:8px; display:flex; flex-wrap:wrap; gap:6px;
+      max-height:180px; overflow:auto; padding:6px;
+      background:#fff; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,.06)
+    }
+    .sel-item{
+      display:inline-flex; align-items:center; gap:6px;
+      padding:6px 8px; border-radius:999px; background:#eef4fb; font-weight:600
+    }
+    .sel-item button{
+      border:none; background:transparent; cursor:pointer; font-weight:700; line-height:1
+    }
+    .sel-item button:hover{ opacity:.8 }
+
     /* Mobilanpassning */
     @media (max-width: 900px){
       #searchForm{grid-template-columns:repeat(2,1fr)}
@@ -124,6 +139,12 @@
         Rensa urval
       </button>
     </div>
+
+    <!-- Expanderbar urvalslista -->
+    <details id="selectionDetails" style="margin-top:6px;">
+      <summary style="cursor:pointer; user-select:none;">Visa urval</summary>
+      <div id="selectionList" class="sel-list" aria-live="polite"></div>
+    </details>
 
     <div id="cards" class="cards" role="list"></div>
     <div id="empty" class="empty" hidden>Inga resultat.</div>
@@ -283,6 +304,7 @@
     function updateSelectionUI() {
       const el = document.getElementById('selectionCount');
       if (el) el.textContent = `Urval: ${selection.size}`;
+
       // Uppdatera knapparnas text i synliga kort
       document.querySelectorAll('.card[data-vg]').forEach(card => {
         const id = card.getAttribute('data-vg') || '';
@@ -293,6 +315,23 @@
         btn.setAttribute('aria-pressed', String(selected));
         card.classList.toggle('selected', selected);
       });
+
+      // Rita expanderbar lista
+      const list = document.getElementById('selectionList');
+      if (list) {
+        const ids = [...selection].sort((a,b)=>a.localeCompare(b,'sv',{numeric:true}));
+        list.innerHTML = ids.map(id =>
+          `<span class="sel-item" data-id="${id}">
+             ${id}
+             <button type="button" aria-label="Ta bort ${id}" title="Ta bort ${id}" data-remove="${id}">×</button>
+           </span>`
+        ).join('');
+
+        // Uppdatera summary-text
+        const details = document.getElementById('selectionDetails');
+        const summary = details?.querySelector('summary');
+        if (summary) summary.textContent = selection.size ? `Visa urval (${selection.size})` : 'Visa urval';
+      }
     }
 
     // Kopiera hela urvalet
@@ -318,11 +357,19 @@
       selection.clear();
       saveSelection();
       updateSelectionUI();
+      document.getElementById('selectionDetails')?.removeAttribute('open');
     }
 
     // Knappar i urvalspanelen
     document.getElementById('copySelBtn')?.addEventListener('click', copySelectionToClipboard);
     document.getElementById('clearSelBtn')?.addEventListener('click', clearSelection);
+
+    // ✕-borttagning i expanderbar lista (event delegation)
+    document.getElementById('selectionList')?.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-remove]');
+      if (!btn) return;
+      removeFromSelection(btn.dataset.remove);
+    });
 
     // ======= Kort-rendering + totaler =======
     function renderCards(data){
@@ -341,7 +388,7 @@
       }
 
       empty.hidden=true;
-      total.textContent = data.length >= 100 ? 'Totalt >100 resultat' : `Totalt ${data.length} resultat`;
+      total.textContent = data.length >= 100  ? 'Totalt >100 resultat' : `Totalt ${data.length} resultat`;
 
       data.forEach(row=>{
         const card = document.createElement('div');
