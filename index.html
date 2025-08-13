@@ -19,7 +19,7 @@
 
     .wrap{max-width:1000px;margin:0 auto;padding:0 12px 28px}
 
-    /* Sökfält – placeholders i gemener, dropdowns för konsttyp/teknik */
+    /* Sökfält */
     #searchForm{
       display:grid;grid-template-columns:repeat(4,minmax(170px,1fr));
       gap:10px 12px;background:#fff;padding:12px;border-radius:12px;
@@ -87,6 +87,11 @@
     }
     .sel-item button:hover{ opacity:.8 }
 
+    /* Mindre knappar i urvalspanelen och listan */
+    #selectionBar button { padding:4px 10px; font-size:0.85rem; border-radius:6px; box-shadow:none; }
+    .sel-item { padding:4px 6px; font-size:0.8rem; }
+    .sel-item button { font-size:0.9rem; padding:0; line-height:1; }
+
     /* Mobilanpassning */
     @media (max-width: 900px){
       #searchForm{grid-template-columns:repeat(2,1fr)}
@@ -99,32 +104,13 @@
       #searchBtn,#clearBtn{width:100%}
       .cards{grid-template-columns:1fr}
     }
-    /* Gör urvalspanelens knappar mindre */
-#selectionBar button {
-  padding: 4px 10px;
-  font-size: 0.85rem;
-  border-radius: 6px;
-  box-shadow: none;
-}
-
-/* Gör knapparna i den expanderbara listan mindre */
-.sel-item {
-  padding: 4px 6px;
-  font-size: 0.8rem;
-}
-.sel-item button {
-  font-size: 0.9rem;
-  padding: 0;
-  line-height: 1;
-}
-
   </style>
 </head>
 <body>
   <header><h1>VGR öppna konstdata – sök</h1></header>
   <div class="wrap">
 
-    <!-- Formulär utan labels; placeholders i gemener; dropdowns för konsttyp/teknik -->
+    <!-- Formulär -->
     <form id="searchForm" aria-label="Sök i datasetet">
       <input type="search" id="creatorInput" placeholder="konstnär" autocomplete="off" />
       <input type="search" id="titleInput" placeholder="titel" autocomplete="off" />
@@ -151,10 +137,13 @@
     <div id="totalCount"></div>
     <div id="selectionBar" style="display:flex; gap:8px; align-items:center; margin-top:8px;">
       <span id="selectionCount" style="font-size:.95rem; color:#444;">Urval: 0</span>
-      <button id="copySelBtn" type="button" style="padding:8px 12px; border:none; border-radius:8px; background:#0077cc; color:#fff; font-weight:600; cursor:pointer;">
+      <button id="addAllBtn" type="button" style="background:#e8f5e9; color:#2e7d32; font-weight:600; cursor:pointer;">
+        Lägg till alla
+      </button>
+      <button id="copySelBtn" type="button" style="background:#0077cc; color:#fff; font-weight:600; cursor:pointer;">
         Kopiera VG
       </button>
-      <button id="clearSelBtn" type="button" style="padding:8px 12px; border:none; border-radius:8px; background:#e8eef5; color:#123; font-weight:600; cursor:pointer;">
+      <button id="clearSelBtn" type="button" style="background:#e8eef5; color:#123; font-weight:600; cursor:pointer;">
         Rensa urval
       </button>
     </div>
@@ -180,7 +169,6 @@
       "artform":"Konsttyp","artmedium":"Teknik","id":"VG-nummer",[BOM_OLDER_ID_KEY]:"Äldre id"
     };
 
-    // Mappar formulärfält (obs select för artform/tech)
     const inputIdMap = {
       "creator":"creatorInput","title":"titleInput","created":"createdInput",
       "artform":"artformSelect","artmedium":"artmediumSelect","id":"idInput",[BOM_OLDER_ID_KEY]:"olderIdInput"
@@ -188,7 +176,7 @@
 
     let allData = [];
 
-    // ======= Dropdown-listor (från dig, deduplicerat och städat) =======
+    // ======= Dropdown-listor =======
     const ART_FORMS = [
       "Blandteknik","Collage","Emalj","Fotografi","Grafik","Installation","Ljud","Måleri","Objekt",
       "Relief","Rörlig bild","Skulptur","Teckning","Textil","Övrigt"
@@ -242,6 +230,8 @@
         const n={}; for(const k in item){ n[k.replace(/^\uFEFF/,'')] = item[k]; } return n;
       });
     }
+
+    // ****** LIMIT 100 ******
     function buildQuery(params){
       const parts=[];
       for(const key in params){
@@ -379,7 +369,32 @@
       document.getElementById('selectionDetails')?.removeAttribute('open');
     }
 
+    // Lägg till alla från aktuell sökning
+    function addAllFromCurrentSearch() {
+      if (!allData || allData.length === 0) {
+        alert('Inga resultat att lägga till.');
+        return;
+      }
+      let addedCount = 0;
+      for (const row of allData) {
+        const vg = (row['id'] || '').toString().toUpperCase();
+        if (!isVG(vg)) continue;
+        if (selection.has(vg)) continue;
+        if (selection.size >= SEL_LIMIT) break;
+        selection.add(vg);
+        addedCount++;
+      }
+      saveSelection();
+      updateSelectionUI();
+      if (addedCount === 0) {
+        alert('Inga nya VG-nummer lades till (antingen redan i urvalet eller urvalet är fullt).');
+      } else {
+        alert(`La till ${addedCount} VG-nummer från sökningen i urvalet.`);
+      }
+    }
+
     // Knappar i urvalspanelen
+    document.getElementById('addAllBtn')?.addEventListener('click', addAllFromCurrentSearch);
     document.getElementById('copySelBtn')?.addEventListener('click', copySelectionToClipboard);
     document.getElementById('clearSelBtn')?.addEventListener('click', clearSelection);
 
@@ -407,7 +422,7 @@
       }
 
       empty.hidden=true;
-      total.textContent = data.length >= 100  ? 'Totalt >100 resultat' : `Totalt ${data.length} resultat`;
+      total.textContent = data.length >= 100 ? 'Totalt ≥100 resultat (visar max 100)' : `Totalt ${data.length} resultat`;
 
       data.forEach(row=>{
         const card = document.createElement('div');
@@ -454,11 +469,9 @@
           toggleSelection(vg);
         });
 
-        // Montera
         card.appendChild(kv);
         card.appendChild(btn);
 
-        // Visuell markering om redan vald
         if (selected) card.classList.add('selected');
 
         wrap.appendChild(card);
@@ -500,7 +513,7 @@
     // Första laddningen + visa urvalsstatus
     fetchData().then(updateSelectionUI);
 
-    // PWA (relativ sökväg funkar på GitHub Pages)
+    // PWA
     if('serviceWorker' in navigator){
       navigator.serviceWorker.register('./sw.js')
         .then(r=>console.log('✅ Service worker:', r.scope))
