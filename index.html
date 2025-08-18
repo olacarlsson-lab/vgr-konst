@@ -68,9 +68,8 @@
       padding:6px 10px; border:none; border-radius:8px; cursor:pointer; font-weight:600;
       background:#e8eef5; color:#123;
     }
-    .card.selected .add-btn {
-      background:#d2ebff; color:#004a99;
-    }
+    .card.selected .add-btn { background:#d2ebff; color:#004a99; }
+    .note-line{ font-size:.9rem; color:#334; background:#f3f7fc; padding:6px 8px; border-radius:8px; }
 
     /* Expanderbar urvalslista */
     .sel-list{
@@ -80,17 +79,13 @@
     }
     .sel-item{
       display:inline-flex; align-items:center; gap:6px;
-      padding:6px 8px; border-radius:999px; background:#eef4fb; font-weight:600
+      padding:4px 6px; border-radius:999px; background:#eef4fb; font-weight:600; font-size:.85rem;
     }
-    .sel-item button{
-      border:none; background:transparent; cursor:pointer; font-weight:700; line-height:1
-    }
+    .sel-item button{ border:none; background:transparent; cursor:pointer; font-weight:700; line-height:1; font-size:.9rem; }
     .sel-item button:hover{ opacity:.8 }
 
     /* Mindre knappar i urvalspanelen och listan */
     #selectionBar button { padding:4px 10px; font-size:0.85rem; border-radius:6px; box-shadow:none; }
-    .sel-item { padding:4px 6px; font-size:0.8rem; }
-    .sel-item button { font-size:0.9rem; padding:0; line-height:1; }
 
     /* Mobilanpassning */
     @media (max-width: 900px){
@@ -137,15 +132,9 @@
     <div id="totalCount"></div>
     <div id="selectionBar" style="display:flex; gap:8px; align-items:center; margin-top:8px;">
       <span id="selectionCount" style="font-size:.95rem; color:#444;">Urval: 0</span>
-      <button id="addAllBtn" type="button" style="background:#e8f5e9; color:#2e7d32; font-weight:600; cursor:pointer;">
-        Lägg till alla
-      </button>
-      <button id="copySelBtn" type="button" style="background:#0077cc; color:#fff; font-weight:600; cursor:pointer;">
-        Kopiera VG
-      </button>
-      <button id="clearSelBtn" type="button" style="background:#e8eef5; color:#123; font-weight:600; cursor:pointer;">
-        Rensa urval
-      </button>
+      <button id="addAllBtn" type="button" style="background:#e8f5e9; color:#2e7d32; font-weight:600; cursor:pointer;">Lägg till alla</button>
+      <button id="copySelBtn" type="button" style="background:#0077cc; color:#fff; font-weight:600; cursor:pointer;">Kopiera VG</button>
+      <button id="clearSelBtn" type="button" style="background:#e8eef5; color:#123; font-weight:600; cursor:pointer;">Rensa urval</button>
     </div>
 
     <!-- Expanderbar urvalslista -->
@@ -248,7 +237,6 @@
     // ======= Hämtning + lokalt accent-insensitivt filter =======
     async function fetchData(params={}, rawSearch={}){
       const url = datasetBaseURL + buildQuery(params);
-      console.log('🔍 URL:', url);
       try{
         const res = await fetch(url, {headers:{accept:'application/json'}});
         if(!res.ok) throw new Error(`HTTP-fel: ${res.status}`);
@@ -275,98 +263,182 @@
       }
     }
 
-    // ======= Urval över flera sökningar =======
+    // ======= Urval (med anteckning + datasnapshot) =======
     const SEL_KEY = 'vgr_konst_selection';
     const SEL_LIMIT = 300;
-    let selection = new Set(JSON.parse(localStorage.getItem(SEL_KEY) || '[]'));
 
-    function saveSelection() {
-      localStorage.setItem(SEL_KEY, JSON.stringify([...selection]));
-    }
+    // selection som objekt: { VGID: { note: string, data: {...} } }
+    let selection = (()=>{
+      try{
+        const raw = localStorage.getItem(SEL_KEY);
+        const parsed = raw ? JSON.parse(raw) : null;
+        if(Array.isArray(parsed)){
+          // Migrera från gammalt Set-format (bara id:n)
+          const obj = {};
+          parsed.forEach(id=>{ obj[String(id).toUpperCase()] = { note:'', data:null }; });
+          localStorage.setItem(SEL_KEY, JSON.stringify(obj));
+          return obj;
+        }
+        return parsed && typeof parsed==='object' ? parsed : {};
+      }catch{ return {}; }
+    })();
 
+    function saveSelection(){ localStorage.setItem(SEL_KEY, JSON.stringify(selection)); }
+    function selectionSize(){ return Object.keys(selection).length; }
+    function hasSelection(id){ return !!selection[String(id||'').toUpperCase()]; }
     function isVG(s) { return /^VG\d+$/i.test(String(s || '')); }
 
-    function addToSelection(id) {
-      id = String(id || '').toUpperCase();
+    function promptAndNormalizeNote(def = ''){
+      const n = prompt('Anteckning (valfritt):', def ?? '');
+      return n === null ? null : String(n).trim();
+    }
+
+    function addToSelection(entry, note='') {
+      const id = String(entry?.id || entry || '').toUpperCase();
       if (!isVG(id)) return;
-      if (selection.size >= SEL_LIMIT && !selection.has(id)) {
+      if (!hasSelection(id) && selectionSize() >= SEL_LIMIT) {
         alert(`Max ${SEL_LIMIT} i urvalet.`);
         return;
       }
-      selection.add(id);
+      const olderKey = 'older id';
+      const data = entry && typeof entry === 'object' ? {
+        creator: entry.creator ?? '',
+        title: entry.title ?? '',
+        created: entry.created ?? '',
+        artform: entry.artform ?? '',
+        artmedium: entry.artmedium ?? '',
+        [olderKey]: entry[olderKey] ?? entry[BOM_OLDER_ID_KEY] ?? ''
+      } : (selection[id]?.data || null);
+      selection[id] = { note: note || (selection[id]?.note || ''), data };
       saveSelection();
       updateSelectionUI();
     }
 
     function removeFromSelection(id) {
       id = String(id || '').toUpperCase();
-      selection.delete(id);
+      if (selection[id]) delete selection[id];
       saveSelection();
       updateSelectionUI();
     }
 
-    function toggleSelection(id) {
-      const up = String(id || '').toUpperCase();
-      selection.has(up) ? removeFromSelection(up) : addToSelection(up);
+    function toggleSelection(entry){
+      const id = String(entry?.id || entry || '').toUpperCase();
+      if (hasSelection(id)) {
+        removeFromSelection(id);
+      } else {
+        const note = promptAndNormalizeNote('');
+        if (note === null) return; // avbruten
+        addToSelection(entry, note);
+      }
     }
 
     function updateSelectionUI() {
       const el = document.getElementById('selectionCount');
-      if (el) el.textContent = `Urval: ${selection.size}`;
+      if (el) el.textContent = `Urval: ${selectionSize()}`;
 
-      // Uppdatera knapparnas text i synliga kort
+      // Uppdatera knapparnas text i synliga kort + notisrad
       document.querySelectorAll('.card[data-vg]').forEach(card => {
         const id = card.getAttribute('data-vg') || '';
         const btn = card.querySelector('.add-btn');
         if (!btn) return;
-        const selected = selection.has(id.toUpperCase());
+        const selected = hasSelection(id);
+        const noteTxt = (selection[id]?.note || '').trim();
         btn.textContent = selected ? 'Ta bort från urval' : 'Lägg till i urval';
         btn.setAttribute('aria-pressed', String(selected));
+        btn.title = selected && noteTxt ? `Anteckning: ${noteTxt}` : (isVG(id) ? `Lägg till/ta bort ${id} från urval` : 'Denna rad saknar giltigt VG-nummer');
         card.classList.toggle('selected', selected);
+
+        // liten rad med anteckningen i kortet när valt
+        let nl = card.querySelector('.note-line');
+        if (selected && noteTxt) {
+          if (!nl) {
+            nl = document.createElement('div');
+            nl.className = 'note-line';
+            card.appendChild(nl);
+          }
+          nl.textContent = `Anteckning: ${noteTxt}`;
+        } else if (nl) {
+          nl.remove();
+        }
       });
 
       // Rita expanderbar lista
       const list = document.getElementById('selectionList');
       if (list) {
-        const ids = [...selection].sort((a,b)=>a.localeCompare(b,'sv',{numeric:true}));
-        list.innerHTML = ids.map(id =>
-          `<span class="sel-item" data-id="${id}">
-             ${id}
-             <button type="button" aria-label="Ta bort ${id}" title="Ta bort ${id}" data-remove="${id}">×</button>
-           </span>`
-        ).join('');
+        const ids = Object.keys(selection).sort((a,b)=>a.localeCompare(b,'sv',{numeric:true}));
+        list.innerHTML = ids.map(id => {
+          const raw = (selection[id]?.note || '').trim();
+          const has = raw.length > 0;
+          const preview = has ? ` — ${raw.split('\n')[0].slice(0, 60)}` : '';
+          const titleAttr = has
+            ? ` title="${raw.replace(/&/g,'&amp;').replace(/"/g,'&quot;')}"`
+            : '';
+          return `<span class="sel-item" data-id="${id}"${titleAttr}>
+            ${id}${has ? ' 📌' : ''}<span style="font-weight:400;opacity:.85;">${preview}</span>
+            <button type="button" data-edit="${id}" title="Redigera anteckning">✎</button>
+            <button type="button" data-remove="${id}" title="Ta bort ${id}">×</button>
+          </span>`;
+        }).join('');
 
         // Uppdatera summary-text
         const details = document.getElementById('selectionDetails');
         const summary = details?.querySelector('summary');
-        if (summary) summary.textContent = selection.size ? `Visa urval (${selection.size})` : 'Visa urval';
+        if (summary) summary.textContent = selectionSize() ? `Visa urval (${selectionSize()})` : 'Visa urval';
       }
     }
 
-    // Kopiera hela urvalet
+    // ✕/✎ i urvalslistan
+    document.getElementById('selectionList')?.addEventListener('click', (e) => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+
+      if (btn.dataset.remove) {
+        removeFromSelection(btn.dataset.remove);
+        return;
+      }
+
+      if (btn.dataset.edit) {
+        const id = btn.dataset.edit;
+        const current = (selection[id]?.note || '').trim();
+        const note = promptAndNormalizeNote(current);
+        if (note !== null) {
+          selection[id] = selection[id] || { note:'', data:null };
+          selection[id].note = note;
+          saveSelection();
+          updateSelectionUI();
+        }
+      }
+    });
+
+    // Kopiera hela urvalet i önskat format + citatlista
     async function copySelectionToClipboard() {
-      if (selection.size === 0) {
+      const ids = Object.keys(selection).sort((a,b)=>a.localeCompare(b,'sv',{numeric:true}));
+      if (ids.length === 0) {
         alert('Urvalet är tomt.');
         return;
       }
-      const ids = [...selection].map(id => `"${id}"`).join(', ');
+      const blocks = ids.map(id => {
+        const item = selection[id] || {}; const d = item.data || {};
+        return [
+          `Konstnär: ${d.creator || ''}`,
+          `Titel: ${d.title || ''}`,
+          `Framställningsår: ${d.created || ''}`,
+          `Konsttyp: ${d.artform || ''}`,
+          `Teknik: ${d.artmedium || ''}`,
+          `VG-nummer: ${id}`,
+          `Äldre id: ${d['older id'] || ''}`,
+          `Anteckning: ${item.note || ''}`
+        ].join('\n');
+      });
+      const quoted = ids.map(id => `"${id}"`).join(', ');
+      const text = blocks.join('\n\n') + `\n\n${quoted}`;
       try {
-        await navigator.clipboard.writeText(ids);
-        alert(`Kopierade ${selection.size} VG-nummer till urklipp.`);
+        await navigator.clipboard.writeText(text);
+        alert(`Kopierade ${ids.length} poster med anteckningar + VG-lista till urklipp.`);
       } catch (e) {
         console.warn('Clipboard API misslyckades:', e);
-        window.prompt('Kopiera manuellt:', ids);
+        window.prompt('Kopiera manuellt:', text);
       }
-    }
-
-    // Rensa urvalet
-    function clearSelection() {
-      if (selection.size === 0) return;
-      if (!confirm('Rensa hela urvalet?')) return;
-      selection.clear();
-      saveSelection();
-      updateSelectionUI();
-      document.getElementById('selectionDetails')?.removeAttribute('open');
     }
 
     // Lägg till alla från aktuell sökning
@@ -379,31 +451,17 @@
       for (const row of allData) {
         const vg = (row['id'] || '').toString().toUpperCase();
         if (!isVG(vg)) continue;
-        if (selection.has(vg)) continue;
-        if (selection.size >= SEL_LIMIT) break;
-        selection.add(vg);
+        if (hasSelection(vg)) continue;
+        if (selectionSize() >= SEL_LIMIT) break;
+        addToSelection({ ...row, id: vg }, '');
         addedCount++;
       }
-      saveSelection();
-      updateSelectionUI();
       if (addedCount === 0) {
         alert('Inga nya VG-nummer lades till (antingen redan i urvalet eller urvalet är fullt).');
       } else {
         alert(`La till ${addedCount} VG-nummer från sökningen i urvalet.`);
       }
     }
-
-    // Knappar i urvalspanelen
-    document.getElementById('addAllBtn')?.addEventListener('click', addAllFromCurrentSearch);
-    document.getElementById('copySelBtn')?.addEventListener('click', copySelectionToClipboard);
-    document.getElementById('clearSelBtn')?.addEventListener('click', clearSelection);
-
-    // ✕-borttagning i expanderbar lista (event delegation)
-    document.getElementById('selectionList')?.addEventListener('click', (e) => {
-      const btn = e.target.closest('button[data-remove]');
-      if (!btn) return;
-      removeFromSelection(btn.dataset.remove);
-    });
 
     // ======= Kort-rendering + totaler =======
     function renderCards(data){
@@ -424,6 +482,7 @@
       empty.hidden=true;
       total.textContent = data.length >= 100 ? 'Totalt ≥100 resultat (visar max 100)' : `Totalt ${data.length} resultat`;
 
+      const frag = document.createDocumentFragment();
       data.forEach(row=>{
         const card = document.createElement('div');
         card.className='card';
@@ -456,8 +515,11 @@
         const btn = document.createElement('button');
         btn.className = 'add-btn';
         btn.type = 'button';
-        btn.title = isVG(vg) ? `Lägg till/ta bort ${vg} från urval` : 'Denna rad saknar giltigt VG-nummer';
-        const selected = selection.has(vg);
+        const existingNote = (selection[vg]?.note || '').trim();
+        btn.title = isVG(vg)
+          ? (existingNote ? `Anteckning: ${existingNote}` : `Lägg till/ta bort ${vg} från urval`)
+          : 'Denna rad saknar giltigt VG-nummer';
+        const selected = hasSelection(vg);
         btn.textContent = selected ? 'Ta bort från urval' : 'Lägg till i urval';
         btn.setAttribute('aria-pressed', String(selected));
         btn.addEventListener('click', (e) => {
@@ -466,7 +528,7 @@
             alert('Denna rad saknar giltigt VG-nummer.');
             return;
           }
-          toggleSelection(vg);
+          toggleSelection({ ...row, id: vg });
         });
 
         card.appendChild(kv);
@@ -474,9 +536,10 @@
 
         if (selected) card.classList.add('selected');
 
-        wrap.appendChild(card);
+        frag.appendChild(card);
       });
 
+      wrap.appendChild(frag);
       updateSelectionUI();
     }
 
@@ -506,12 +569,24 @@
       fetchData({}, {}); // ladda om med standard
     });
 
+    // Knappar i urvalspanelen
+    document.getElementById('addAllBtn')?.addEventListener('click', addAllFromCurrentSearch);
+    document.getElementById('copySelBtn')?.addEventListener('click', copySelectionToClipboard);
+    document.getElementById('clearSelBtn')?.addEventListener('click', ()=>{
+      if (selectionSize() === 0) return;
+      if (!confirm('Rensa hela urvalet?')) return;
+      selection = {};
+      saveSelection();
+      updateSelectionUI();
+      document.getElementById('selectionDetails')?.removeAttribute('open');
+    });
+
     // ======= Init =======
     populateSelect(document.getElementById('artformSelect'), ART_FORMS, 'konsttyp (alla)');
     populateSelect(document.getElementById('artmediumSelect'), ART_MEDIA, 'teknik (alla)');
 
     // Första laddningen + visa urvalsstatus
-    fetchData().then(updateSelectionUI);
+    fetchData({}, {}).then(updateSelectionUI);
 
     // PWA
     if('serviceWorker' in navigator){
