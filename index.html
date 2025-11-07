@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="sv">
+<html lang="sv" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -8,85 +8,452 @@
   <!-- PWA -->
   <link rel="manifest" href="./manifest.json">
   <link rel="apple-touch-icon" href="./icon-192.png">
-  <meta name="theme-color" content="#0077cc" />
-
+  <meta name="theme-color" content="#020617" />
+  
   <style>
-    :root{--brand:#0077cc;--brand-dark:#005a9e;--bg:#f7f9fc}
-    *{box-sizing:border-box}
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:0;background:var(--bg);color:#222}
-    header{padding:18px 16px;text-align:center}
-    header h1{margin:0;color:#004a99;font-size:1.25rem}
+    :root{
+      --brand:#38bdf8;
+      --brand-dark:#0ea5e9;
+    }
 
-    .wrap{max-width:1000px;margin:0 auto;padding:0 12px 28px}
+    /* DARK THEME */
+    :root[data-theme="dark"]{
+      --body-bg: radial-gradient(circle at top, #0f172a 0, #020617 38%, #020617 100%);
+      --header-bg: linear-gradient(to bottom, rgba(15,23,42,0.9), rgba(15,23,42,0.4), transparent 80%);
+      --text-main:#e5e7eb;
+      --text-muted:#9ca3af;
+
+      --panel-bg:rgba(15,23,42,0.95);
+      --card-bg:rgba(15,23,42,0.95);
+      --chip-bg:#0f172a;
+
+      --border-soft:#1f2937;
+      --border-strong:#1e293b;
+
+      --field-bg:#020617;
+
+      --btn-primary-fg:#0b1020;
+      --btn-secondary-bg:#020617;
+      --btn-secondary-border:#1f2937;
+      --btn-secondary-fg:#9ca3af;
+
+      --selection-add-bg:#022c22;
+      --selection-add-fg:#bbf7d0;
+      --selection-add-border:#064e3b;
+    }
+
+    /* LIGHT THEME */
+    :root[data-theme="light"]{
+      --body-bg: radial-gradient(circle at top, #e0f2fe 0, #f7f9fc 40%, #eff3f8 100%);
+      --header-bg: linear-gradient(to bottom, rgba(255,255,255,0.96), rgba(243,244,246,0.9), transparent 80%);
+      --text-main:#111827;
+      --text-muted:#6b7280;
+
+      --panel-bg:#ffffff;
+      --card-bg:#ffffff;
+      --chip-bg:#e5e7eb;
+
+      --border-soft:#d1d5db;
+      --border-strong:#cbd5f5;
+
+      --field-bg:#f9fafb;
+
+      --btn-primary-fg:#f9fafb;
+      --btn-secondary-bg:#f9fafb;
+      --btn-secondary-border:#d1d5db;
+      --btn-secondary-fg:#374151;
+
+      --selection-add-bg:#ecfdf3;
+      --selection-add-fg:#166534;
+      --selection-add-border:#bbf7d0;
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      margin:0;
+      background:var(--body-bg);
+      color:var(--text-main);
+      min-height:100vh;
+    }
+
+    header{
+      padding:18px 16px 10px;
+      background:var(--header-bg);
+      backdrop-filter:blur(16px);
+    }
+
+    .header-inner{
+      max-width:1000px;
+      margin:0 auto;
+      padding:0 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    .title-block h1{
+      margin:0;
+      font-size:1.6rem;
+      font-weight:500;
+      letter-spacing:.04em;
+      color:var(--text-main);
+    }
+
+    .title-block h1 span{
+      font-weight:600;
+      color:var(--brand);
+    }
+
+    .title-block p{
+      margin:6px 0 0;
+      font-size:.9rem;
+      color:var(--text-muted);
+    }
+
+    #themeToggle{
+      border:none;
+      border-radius:999px;
+      padding:.45rem .8rem;
+      cursor:pointer;
+      font-size:1rem;
+      background:var(--btn-secondary-bg);
+      color:var(--btn-secondary-fg);
+      border:1px solid var(--btn-secondary-border);
+      box-shadow:0 4px 14px rgba(15,23,42,.35);
+    }
+    #themeToggle:hover{
+      filter:brightness(1.05);
+    }
+
+    .wrap{
+      max-width:1000px;
+      margin:0 auto;
+      padding:0 12px 28px;
+    }
 
     /* Sökfält */
     #searchForm{
-      display:grid;grid-template-columns:repeat(4,minmax(170px,1fr));
-      gap:10px 12px;background:#fff;padding:12px;border-radius:12px;
-      box-shadow:0 8px 24px rgba(0,0,0,.06)
+      display:grid;
+      grid-template-columns:repeat(4,minmax(170px,1fr));
+      gap:10px 12px;
+      background:var(--panel-bg);
+      padding:14px 14px 12px;
+      border-radius:16px;
+      border:1px solid var(--border-strong);
+      box-shadow:
+        0 18px 45px rgba(15,23,42,.35),
+        0 0 0 1px rgba(148,163,184,.06);
     }
-    #searchForm input[type="search"], #searchForm select{
-      padding:.7rem .8rem;border:1.5px solid #d0d7de;border-radius:10px;font-size:1rem;background:#fff;
-      transition:border-color .2s,box-shadow .2s
+
+    #searchForm input[type="search"],
+    #searchForm select{
+      padding:.7rem .85rem;
+      border:1px solid var(--border-soft);
+      border-radius:10px;
+      font-size:.95rem;
+      background:var(--field-bg);
+      color:var(--text-main);
+      transition:border-color .18s,box-shadow .18s,background .18s;
     }
-    #searchForm input[type="search"]::placeholder{color:#7a8694}
-    #searchForm input[type="search"]:focus, #searchForm select:focus{
-      outline:none;border-color:var(--brand);box-shadow:0 0 0 4px rgba(0,119,204,.12)
+
+    #searchForm input[type="search"]::placeholder{
+      color:var(--text-muted);
     }
-    .actions{display:flex;gap:10px;align-items:stretch}
+
+    #searchForm input[type="search"]:focus,
+    #searchForm select:focus{
+      outline:none;
+      border-color:var(--brand);
+      box-shadow:0 0 0 1px rgba(56,189,248,.9);
+    }
+
+    #searchForm select{
+      appearance:none;
+      background-image:
+        linear-gradient(45deg,transparent 50%, #9ca3af 50%),
+        linear-gradient(135deg,#9ca3af 50%,transparent 50%);
+      background-position:
+        calc(100% - 16px) 45%,
+        calc(100% - 12px) 45%;
+      background-size:5px 5px;
+      background-repeat:no-repeat;
+      padding-right:26px;
+    }
+
+    .actions{
+      display:flex;
+      gap:10px;
+      align-items:stretch;
+    }
+
     button{
-      border:none;border-radius:10px;padding:.8rem 1.1rem;font-weight:600;cursor:pointer;
-      box-shadow:0 6px 16px rgba(0,0,0,.08)
+      border:none;
+      border-radius:999px;
+      padding:.8rem 1.1rem;
+      font-weight:600;
+      cursor:pointer;
+      box-shadow:0 10px 25px rgba(15,23,42,.3);
+      font-size:.9rem;
     }
-    #searchBtn{background:var(--brand);color:#fff}
-    #searchBtn:hover{background:var(--brand-dark)}
-    #clearBtn{background:#e8eef5;color:#123}
-    #clearBtn:hover{background:#dbe7f3}
+
+    #searchBtn{
+      background:linear-gradient(135deg,var(--brand),var(--brand-dark));
+      color:var(--btn-primary-fg);
+      border:none;
+    }
+    #searchBtn:hover{
+      filter:brightness(1.06);
+      box-shadow:0 14px 32px rgba(56,189,248,.6);
+    }
+
+    #clearBtn{
+      background:var(--btn-secondary-bg);
+      color:var(--btn-secondary-fg);
+      border-radius:999px;
+      border:1px solid var(--btn-secondary-border);
+      box-shadow:none;
+    }
+    #clearBtn:hover{
+      filter:brightness(1.03);
+    }
 
     /* Totaler */
-    #totalCount{margin-top:10px;font-size:.95rem;color:#444}
+    #totalCount{
+      margin-top:12px;
+      font-size:.9rem;
+      color:var(--text-muted);
+    }
 
     /* Kortlayout */
-    .cards{margin-top:14px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-    .card{
-      background:#fff;border-radius:14px;padding:14px 14px;
-      box-shadow:0 8px 22px rgba(0,0,0,.06);
-      display:flex;flex-direction:column;gap:8px
+    .cards{
+      margin-top:14px;
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
     }
-    .kv{display:grid;grid-template-columns:110px 1fr;gap:6px 10px;align-items:start}
-    .k{color:#5b6b7a;font-size:.9rem}
-    .v{font-weight:600}
-    .empty{margin-top:16px;color:#566;text-align:center}
+
+    .card{
+      background:var(--card-bg);
+      border-radius:14px;
+      padding:14px 14px;
+      border:1px solid var(--border-strong);
+      box-shadow:
+        0 14px 35px rgba(15,23,42,.25),
+        0 0 0 1px rgba(148,163,184,.04);
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+
+    .kv{
+      display:grid;
+      grid-template-columns:105px 1fr;
+      gap:6px 10px;
+      align-items:start;
+    }
+    .k{
+      color:var(--text-muted);
+      font-size:.8rem;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+    }
+    .v{
+      font-weight:500;
+      color:var(--text-main);
+      font-size:.9rem;
+    }
+
+    .empty{
+      margin-top:18px;
+      color:var(--text-muted);
+      text-align:center;
+      font-size:.95rem;
+    }
+
+    /* Klickbara fält-länkar */
+    .v a.field-link{
+      color:var(--brand);
+      text-decoration:none;
+      cursor:pointer;
+      margin-right:4px;
+    }
+    .v a.field-link:hover{
+      text-decoration:underline;
+    }
+
+    /* + / − bredvid länkarna */
+    .filter-ops{
+      display:inline-flex;
+      gap:4px;
+      align-items:center;
+    }
+    .filter-btn{
+      border:none;
+      background:transparent;
+      padding:0 4px;
+      cursor:pointer;
+      font-weight:700;
+      font-size:.85em;
+      line-height:1;
+      color:var(--text-muted);
+    }
+    .filter-btn:hover{
+      color:var(--text-main);
+    }
 
     /* Urval/knapp-styles */
-    .card.selected { outline: 2px solid var(--brand); box-shadow: 0 8px 22px rgba(0,119,204,.18); }
-    .card .add-btn { align-self: flex-start; padding:6px 10px; border:none; border-radius:8px; cursor:pointer; font-weight:600; background:#e8eef5; color:#123; }
-    .card.selected .add-btn { background:#d2ebff; color:#004a99; }
-    .note-line{ font-size:.9rem; color:#334; background:#f3f7fc; padding:6px 8px; border-radius:8px; }
+    .card.selected{
+      outline:1px solid rgba(56,189,248,.7);
+      box-shadow:
+        0 18px 45px rgba(15,23,42,.4),
+        0 0 0 1px rgba(56,189,248,.4);
+    }
+
+    .card .add-btn{
+      align-self:flex-start;
+      padding:6px 11px;
+      border-radius:999px;
+      cursor:pointer;
+      font-weight:600;
+      background:var(--btn-secondary-bg);
+      color:var(--btn-secondary-fg);
+      box-shadow:none;
+      border:1px solid var(--btn-secondary-border);
+      font-size:.8rem;
+    }
+    .card .add-btn:hover{
+      filter:brightness(1.05);
+    }
+    .card.selected .add-btn{
+      background:rgba(56,189,248,.12);
+      color:var(--brand-dark);
+      border-color:rgba(56,189,248,.7);
+    }
+
+    .note-line{
+      font-size:.8rem;
+      color:var(--text-main);
+      background:var(--panel-bg);
+      padding:6px 8px;
+      border-radius:8px;
+      border:1px solid var(--border-soft);
+    }
 
     /* Expanderbar urvalslista */
     .sel-list{
-      margin-top:8px; display:flex; flex-wrap:wrap; gap:6px;
-      max-height:180px; overflow:auto; padding:6px;
-      background:#fff; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,.06)
+      margin-top:8px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      max-height:180px;
+      overflow:auto;
+      padding:6px;
+      background:var(--panel-bg);
+      border-radius:10px;
+      box-shadow:0 10px 28px rgba(15,23,42,.25);
+      border:1px solid var(--border-soft);
     }
+
     .sel-item{
-      display:inline-flex; align-items:center; gap:6px;
-      padding:4px 6px; border-radius:999px; background:#eef4fb; font-weight:600; font-size:.85rem;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:4px 8px;
+      border-radius:999px;
+      background:var(--chip-bg);
+      font-weight:500;
+      font-size:.8rem;
+      color:var(--text-main);
+      border:1px solid var(--border-soft);
     }
-    .sel-item button{ border:none; background:transparent; cursor:pointer; font-weight:700; line-height:1; font-size:.9rem; }
-    .sel-item button:hover{ opacity:.8 }
+
+    .sel-item button{
+      border:none;
+      background:transparent;
+      cursor:pointer;
+      font-weight:700;
+      line-height:1;
+      font-size:.9rem;
+      color:var(--text-muted);
+    }
+    .sel-item button:hover{
+      color:var(--text-main);
+    }
+
+    #selectionBar{
+      margin-top:10px;
+    }
 
     /* Mindre knappar i urvalspanelen */
-    #selectionBar button { padding:4px 10px; font-size:0.85rem; border-radius:6px; box-shadow:none; }
+    #selectionBar button{
+      padding:4px 12px;
+      font-size:0.8rem;
+      border-radius:999px;
+      box-shadow:none;
+      border:1px solid var(--border-soft);
+    }
+
+    #selectionCount{
+      font-size:.85rem;
+      color:var(--text-muted);
+    }
+
+    #addAllBtn{
+      background:var(--selection-add-bg);
+      color:var(--selection-add-fg);
+      border-color:var(--selection-add-border);
+    }
+    #addAllBtn:hover{
+      filter:brightness(1.05);
+    }
+
+    #copyMailSelBtn{
+      background:linear-gradient(135deg,var(--brand),var(--brand-dark));
+      color:var(--btn-primary-fg);
+      border:none;
+    }
+
+    #clearSelBtn{
+      background:var(--btn-secondary-bg);
+      color:var(--btn-secondary-fg);
+    }
+    #clearSelBtn:hover{
+      filter:brightness(1.05);
+    }
+
+    details#selectionDetails summary{
+      color:var(--text-muted);
+      font-size:.85rem;
+    }
 
     /* Mobilanpassning */
-    @media (max-width: 900px){ #searchForm{grid-template-columns:repeat(2,1fr)} .cards{grid-template-columns:repeat(2,1fr)} }
-    @media (max-width: 560px){ header h1{font-size:1.1rem} #searchForm{grid-template-columns:1fr} .actions{flex-direction:column} #searchBtn,#clearBtn{width:100%} .cards{grid-template-columns:1fr} }
+    @media (max-width: 900px){
+      #searchForm{grid-template-columns:repeat(2,1fr)}
+      .cards{grid-template-columns:repeat(2,1fr)}
+    }
+    @media (max-width: 560px){
+      .title-block h1{font-size:1.3rem}
+      #searchForm{grid-template-columns:1fr}
+      .actions{flex-direction:column}
+      #searchBtn,#clearBtn{width:100%}
+      .cards{grid-template-columns:1fr}
+    }
   </style>
 </head>
 <body>
-  <header><h1>VGR öppna konstdata – sök</h1></header>
+  <header>
+    <div class="header-inner">
+      <div class="title-block">
+        <h1><span>VGR</span> öppna konstdata</h1>
+        <p>Sök, filtrera och bygg urval av konstverk</p>
+      </div>
+      <button id="themeToggle" type="button" aria-label="Byt tema">🌙</button>
+    </div>
+  </header>
+
   <div class="wrap">
     <!-- Formulär -->
     <form id="searchForm" aria-label="Sök i datasetet">
@@ -105,11 +472,11 @@
 
     <!-- Totaler + urvalspanel -->
     <div id="totalCount"></div>
-    <div id="selectionBar" style="display:flex; gap:8px; align-items:center; margin-top:8px;">
-      <span id="selectionCount" style="font-size:.95rem; color:#444;">Urval: 0</span>
-      <button id="addAllBtn" type="button" style="background:#e8f5e9; color:#2e7d32; font-weight:600; cursor:pointer;">Lägg till alla</button>
-      <button id="copyMailSelBtn" type="button" style="background:#0077cc; color:#fff; font-weight:600; cursor:pointer;">Kopiera/Maila urval</button>
-      <button id="clearSelBtn" type="button" style="background:#e8eef5; color:#123; font-weight:600; cursor:pointer;">Rensa urval</button>
+    <div id="selectionBar" style="display:flex; gap:8px; align-items:center;">
+      <span id="selectionCount">Urval: 0</span>
+      <button id="addAllBtn" type="button">Lägg till alla</button>
+      <button id="copyMailSelBtn" type="button">Kopiera/Maila urval</button>
+      <button id="clearSelBtn" type="button">Rensa urval</button>
     </div>
 
     <!-- Expanderbar urvalslista -->
@@ -123,6 +490,44 @@
   </div>
 
   <script>
+    // ======= Tema-toggle (light/dark) =======
+    const THEME_KEY = 'vgr_konst_theme';
+
+    function applyTheme(theme){
+      const root = document.documentElement;
+      root.setAttribute('data-theme', theme);
+      const btn = document.getElementById('themeToggle');
+      if(btn){
+        const isDark = theme === 'dark';
+        btn.textContent = isDark ? '☀️' : '🌙';
+        btn.title = isDark ? 'Byt till ljust tema' : 'Byt till mörkt tema';
+      }
+    }
+
+    (function initTheme(){
+      try{
+        const stored = localStorage.getItem(THEME_KEY);
+        let theme;
+        if(stored === 'light' || stored === 'dark'){
+          theme = stored;
+        }else if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches){
+          theme = 'dark';
+        }else{
+          theme = 'light';
+        }
+        applyTheme(theme);
+      }catch{
+        applyTheme('dark');
+      }
+    })();
+
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+      const next = current === 'dark' ? 'light' : 'dark';
+      applyTheme(next);
+      try{ localStorage.setItem(THEME_KEY, next); }catch{}
+    });
+
     // ======= Konfiguration =======
     const datasetBaseURL = 'https://vgregion.entryscape.net/rowstore/dataset/1802e57a-b25d-4716-8437-9ed648bbae59';
     const BOM_OLDER_ID_KEY = '\uFEFFolder id';
@@ -195,6 +600,24 @@
       });
     }
 
+    function clearAllFilters(){
+      for (const mapKey in inputIdMap) {
+        const el = document.getElementById(inputIdMap[mapKey]);
+        if (!el) continue;
+        if (el.tagName === 'SELECT') el.value = '';
+        else el.value = '';
+      }
+    }
+
+    // ======= URL → parametrar =======
+    function paramsFromURL() {
+      const p = new URLSearchParams(location.search);
+      const accepted = ["creator","title","created","artform","artmedium","id","older id"];
+      const params = {};
+      accepted.forEach(k => { if (p.has(k)) params[k] = p.get(k); });
+      return params;
+    }
+
     // ****** LIMIT 100 ******
     function buildQuery(params){
       const parts=[];
@@ -242,13 +665,11 @@
     const SEL_KEY = 'vgr_konst_selection';
     const SEL_LIMIT = 300;
 
-    // selection som objekt: { VGID: { note: string, data: {...} } }
     let selection = (()=>{
       try{
         const raw = localStorage.getItem(SEL_KEY);
         const parsed = raw ? JSON.parse(raw) : null;
         if(Array.isArray(parsed)){
-          // Migrera från gammalt Set-format (bara id:n)
           const obj = {};
           parsed.forEach(id=>{ obj[String(id).toUpperCase()] = { note:'', data:null }; });
           localStorage.setItem(SEL_KEY, JSON.stringify(obj));
@@ -302,7 +723,7 @@
         removeFromSelection(id);
       } else {
         const note = promptAndNormalizeNote('');
-        if (note === null) return; // avbruten
+        if (note === null) return;
         addToSelection(entry, note);
       }
     }
@@ -311,7 +732,6 @@
       const el = document.getElementById('selectionCount');
       if (el) el.textContent = `Urval: ${selectionSize()}`;
 
-      // Uppdatera knapparnas text i synliga kort + notisrad
       document.querySelectorAll('.card[data-vg]').forEach(card => {
         const id = card.getAttribute('data-vg') || '';
         const btn = card.querySelector('.add-btn');
@@ -323,7 +743,6 @@
         btn.title = selected && noteTxt ? `Anteckning: ${noteTxt}` : (isVG(id) ? `Lägg till/ta bort ${id} från urval` : 'Denna rad saknar giltigt VG-nummer');
         card.classList.toggle('selected', selected);
 
-        // liten rad med anteckningen i kortet när valt
         let nl = card.querySelector('.note-line');
         if (selected && noteTxt) {
           if (!nl) {
@@ -337,16 +756,17 @@
         }
       });
 
-      // Rita expanderbar lista
       const list = document.getElementById('selectionList');
       if (list) {
         const ids = Object.keys(selection).sort((a,b)=>a.localeCompare(b,'sv',{numeric:true}));
         list.innerHTML = ids.map(id => {
-          const raw = (selection[id]?.note || '').trim();
+          const item = selection[id] || {};
+          const raw = (item.note || '').trim();
           const has = raw.length > 0;
           const preview = has ? ` — ${raw.split('\n')[0].slice(0, 60)}` : '';
           const titleAttr = has
             ? ` title="${raw.replace(/&/g,'&amp;').replace(/"/g,'&quot;')}"`
+
             : '';
           return `<span class="sel-item" data-id="${id}"${titleAttr}>
             ${id}${has ? ' 📌' : ''}<span style="font-weight:400;opacity:.85;">${preview}</span>
@@ -355,14 +775,12 @@
           </span>`;
         }).join('');
 
-        // Uppdatera summary-text
         const details = document.getElementById('selectionDetails');
         const summary = details?.querySelector('summary');
         if (summary) summary.textContent = selectionSize() ? `Visa urval (${selectionSize()})` : 'Visa urval';
       }
     }
 
-    // ✕/✎ i urvalslistan
     document.getElementById('selectionList')?.addEventListener('click', (e) => {
       const btn = e.target.closest('button');
       if (!btn) return;
@@ -423,7 +841,7 @@
     function openEmailComposeWith(text) {
       const defaultSubject = `Urval – VGR konst (${new Date().toLocaleDateString('sv-SE')})`;
       const subject = prompt('Ämne för e-posten:', defaultSubject);
-      if (subject === null) return; // avbrutet
+      if (subject === null) return;
 
       const encSubject = encodeURIComponent(subject.trim());
       const encBody = encodeURIComponent(text);
@@ -438,7 +856,7 @@
 
       try {
         window.location.href = outlookUrl;
-        opened = true; // vi antar lyckat; fallback tar över om protokoll saknas
+        opened = true;
       } catch (e) {
         clearTimeout(timer);
         window.location.href = mailtoUrl;
@@ -450,7 +868,6 @@
       if (!text) { alert('Urvalet är tomt.'); return; }
 
       const copied = await copySelectionToClipboard();
-      // Fråga om mail
       const goMail = confirm(copied
         ? 'Urvalet är kopierat. Vill du öppna e-post med urvalet inklistrat?'
         : 'Vill du öppna e-post med urvalet ändå?');
@@ -504,7 +921,6 @@
         const card = document.createElement('div');
         card.className='card';
 
-        // VG-id som uppercase (kan saknas i enstaka rader)
         const vg = (row['id'] || '').toString().toUpperCase();
         if (isVG(vg)) card.setAttribute('data-vg', vg);
 
@@ -514,7 +930,7 @@
         columnsOrder.forEach(col=>{
           const key = col.replace(/^\uFEFF/,'');
           let val = row[key] ?? '';
-          if(key==='id' && typeof val==='string') val = val.toUpperCase();
+          if (key === 'id' && typeof val === 'string') val = val.toUpperCase();
 
           const k = document.createElement('div');
           k.className='k';
@@ -522,13 +938,115 @@
 
           const v = document.createElement('div');
           v.className='v';
-          v.textContent = val;
+
+          // Gör vissa fält klickbara: creator, created, artform, artmedium
+          if (['creator','created','artform','artmedium'].includes(key) && val) {
+            const ops = document.createElement('span');
+            ops.className = 'filter-ops';
+
+            const link = document.createElement('a');
+            link.href = '#';
+            link.textContent = val;
+            link.className = 'field-link';
+
+            // Klick på själva länken: nollställ andra filter och sök bara på detta värde
+            link.addEventListener('click', (e) => {
+              e.preventDefault();
+
+              const targetKey = key;
+              const targetVal = val.toString();
+
+              clearAllFilters();
+
+              const fieldId = inputIdMap[targetKey];
+              const fieldEl = document.getElementById(fieldId);
+              if (fieldEl) {
+                if (fieldEl.tagName === 'SELECT') {
+                  fieldEl.value = targetVal;
+                } else {
+                  fieldEl.value = targetVal;
+                }
+              }
+
+              runSearchFromForm();
+            });
+
+            ops.appendChild(link);
+
+            // Bestäm om filtret redan är aktivt för detta fält
+            const fieldId = inputIdMap[key];
+            const fieldEl = document.getElementById(fieldId);
+            let currentVal = '';
+            if (fieldEl) {
+              currentVal = fieldEl.tagName === 'SELECT' ? fieldEl.value : fieldEl.value;
+            }
+
+            const isActive = normalizeText(String(currentVal)) === normalizeText(String(val));
+
+            if (!isActive) {
+              // + : lägg till detta filter utan att ta bort andra
+              const plusBtn = document.createElement('button');
+              plusBtn.type = 'button';
+              plusBtn.textContent = '+';
+              plusBtn.className = 'filter-btn';
+              plusBtn.title = 'Lägg till som filter';
+
+              plusBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+
+                const targetKey = key;
+                const targetVal = val.toString();
+                const fieldId = inputIdMap[targetKey];
+                const fieldEl = document.getElementById(fieldId);
+                if (fieldEl) {
+                  if (fieldEl.tagName === 'SELECT') {
+                    fieldEl.value = targetVal;
+                  } else {
+                    fieldEl.value = targetVal;
+                  }
+                }
+
+                runSearchFromForm();
+              });
+
+              ops.appendChild(plusBtn);
+            } else {
+              // − : ta bort just detta filter (töm fältet) och sök om
+              const minusBtn = document.createElement('button');
+              minusBtn.type = 'button';
+              minusBtn.textContent = '−';
+              minusBtn.className = 'filter-btn';
+              minusBtn.title = 'Ta bort detta filter';
+
+              minusBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+
+                const targetKey = key;
+                const fieldId = inputIdMap[targetKey];
+                const fieldEl = document.getElementById(fieldId);
+                if (fieldEl) {
+                  if (fieldEl.tagName === 'SELECT') {
+                    fieldEl.value = '';
+                  } else {
+                    fieldEl.value = '';
+                  }
+                }
+
+                runSearchFromForm();
+              });
+
+              ops.appendChild(minusBtn);
+            }
+
+            v.appendChild(ops);
+          } else {
+            v.textContent = val;
+          }
 
           kv.appendChild(k);
           kv.appendChild(v);
         });
 
-        // Lägg till/ta bort-knapp
         const btn = document.createElement('button');
         btn.className = 'add-btn';
         btn.type = 'button';
@@ -560,10 +1078,9 @@
       updateSelectionUI();
     }
 
-    // ======= Händelser =======
-    document.getElementById('searchForm').addEventListener('submit', e=>{
-      e.preventDefault();
-      const params={}, raw={};
+    // ======= Formulär-sökning, återanvänds av både submit + klickbara länkar =======
+    function runSearchFromForm() {
+      const params = {}, raw = {};
       for(const key in columnsMap){
         const cleanKey = key.replace(/^\uFEFF/,'');
         const el = document.getElementById(inputIdMap[key]);
@@ -572,17 +1089,22 @@
           if(val){
             if(cleanKey==='creator') val = capitalizeWords(val);
             if(cleanKey==='older id') val = normalizeOlderIdInput(val);
-            params[cleanKey]=val; raw[cleanKey]=val;
+            params[cleanKey] = val;
+            raw[cleanKey] = val;
           }
         }
       }
       fetchData(params, raw);
+    }
+
+    // ======= Händelser =======
+    document.getElementById('searchForm').addEventListener('submit', e=>{
+      e.preventDefault();
+      runSearchFromForm();
     });
 
     document.getElementById('clearBtn').addEventListener('click', ()=>{
-      document.querySelectorAll('#searchForm input').forEach(i=>i.value='');
-      document.getElementById('artformSelect').value = '';
-      document.getElementById('artmediumSelect').value = '';
+      clearAllFilters();
       fetchData({}, {}); // ladda om med standard
     });
 
@@ -598,12 +1120,22 @@
       document.getElementById('selectionDetails')?.removeAttribute('open');
     });
 
-    // ======= Init =======
+    // ======= Init: dropdowns + auto-sök från URL =======
     populateSelect(document.getElementById('artformSelect'), ART_FORMS, 'konsttyp (alla)');
     populateSelect(document.getElementById('artmediumSelect'), ART_MEDIA, 'teknik (alla)');
 
-    // Första laddningen + visa urvalsstatus
-    fetchData({}, {}).then(updateSelectionUI);
+    (()=>{
+      const urlParams = paramsFromURL();
+      for (const key in urlParams) {
+        const el = document.getElementById(inputIdMap[key] || "");
+        if (el) el.value = urlParams[key];
+      }
+      if (Object.keys(urlParams).length) {
+        fetchData(urlParams, urlParams).then(updateSelectionUI);
+      } else {
+        fetchData({}, {}).then(updateSelectionUI);
+      }
+    })();
 
     // PWA
     if('serviceWorker' in navigator){
