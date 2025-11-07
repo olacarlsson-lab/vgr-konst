@@ -441,6 +441,38 @@
       #searchBtn,#clearBtn{width:100%}
       .cards{grid-template-columns:1fr}
     }
+    /* Justerar klickbara fält och +/− placering */
+.filter-ops {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.filter-ops a.field-link {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 2px; /* Ger lite luft efter årtal/länk */
+  line-height: 1.2;
+}
+
+.filter-ops .filter-btn {
+  position: relative;
+  top: -1px;           /* Justerar vertikalt så den linjerar bättre */
+  padding: 0 4px;
+  font-weight: 700;
+  font-size: .85em;
+  line-height: 1;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--text-muted);
+  border-radius: 4px;
+}
+.filter-ops .filter-btn:hover {
+  color: var(--text-main);
+  background: rgba(0,0,0,.06);
+}
+
   </style>
 </head>
 <body>
