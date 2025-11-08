@@ -250,7 +250,7 @@
 
     .kv{
       display:grid;
-      grid-template-columns:105px 1fr;
+      grid-template-columns:minmax(130px,38%) 1fr; /* mer plats för Framställningsår */
       gap:6px 10px;
       align-items:start;
     }
@@ -278,7 +278,7 @@
       color:var(--brand);
       text-decoration:none;
       cursor:pointer;
-      margin-right:4px;
+      margin-right:3px;
     }
     .v a.field-link:hover{
       text-decoration:underline;
@@ -287,10 +287,10 @@
     /* + / − bredvid länkarna */
     .filter-ops{
       display:inline-flex;
-      gap:4px;
       align-items:center;
+      gap:4px;
     }
-    .filter-btn{
+    .filter-ops .filter-btn{
       border:none;
       background:transparent;
       padding:0 4px;
@@ -299,9 +299,11 @@
       font-size:.85em;
       line-height:1;
       color:var(--text-muted);
+      border-radius:4px;
     }
-    .filter-btn:hover{
+    .filter-ops .filter-btn:hover{
       color:var(--text-main);
+      background:rgba(0,0,0,.06);
     }
 
     /* Urval/knapp-styles */
@@ -310,6 +312,12 @@
       box-shadow:
         0 18px 45px rgba(15,23,42,.4),
         0 0 0 1px rgba(56,189,248,.4);
+    }
+
+    .card-buttons{
+      display:flex;
+      gap:8px;
+      margin-top:4px;
     }
 
     .card .add-btn{
@@ -327,7 +335,7 @@
     .card .add-btn:hover{
       filter:brightness(1.05);
     }
-    .card.selected .add-btn{
+    .card.selected .add-btn.main-add-btn{
       background:rgba(56,189,248,.12);
       color:var(--brand-dark);
       border-color:rgba(56,189,248,.7);
@@ -441,38 +449,6 @@
       #searchBtn,#clearBtn{width:100%}
       .cards{grid-template-columns:1fr}
     }
-    /* Justerar klickbara fält och +/− placering */
-.filter-ops {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.filter-ops a.field-link {
-  display: inline-block;
-  vertical-align: middle;
-  margin-right: 2px; /* Ger lite luft efter årtal/länk */
-  line-height: 1.2;
-}
-
-.filter-ops .filter-btn {
-  position: relative;
-  top: -1px;           /* Justerar vertikalt så den linjerar bättre */
-  padding: 0 4px;
-  font-weight: 700;
-  font-size: .85em;
-  line-height: 1;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  color: var(--text-muted);
-  border-radius: 4px;
-}
-.filter-ops .filter-btn:hover {
-  color: var(--text-main);
-  background: rgba(0,0,0,.06);
-}
-
   </style>
 </head>
 <body>
@@ -566,7 +542,7 @@
 
     const columnsOrder = ["creator","title","created","artform","artmedium","id",BOM_OLDER_ID_KEY];
     const columnsMap = {
-      "creator":"Konstnär","title":"Titel","created":"År",
+      "creator":"Konstnär","title":"Titel","created":"Framställningsår",
       "artform":"Konsttyp","artmedium":"Teknik","id":"VG-nummer",[BOM_OLDER_ID_KEY]:"Äldre id"
     };
 
@@ -749,14 +725,25 @@
       updateSelectionUI();
     }
 
+    // Ny: öppna anteckningsprompt för ett befintligt urvals-id
+    function editNoteForId(id){
+      id = String(id || '').toUpperCase();
+      if (!selection[id]) return;
+      const current = (selection[id].note || '').trim();
+      const note = promptAndNormalizeNote(current);
+      if (note === null) return;
+      selection[id].note = note;
+      saveSelection();
+      updateSelectionUI();
+    }
+
+    // Ändrad: ingen prompt när man lägger till, bara toggle
     function toggleSelection(entry){
       const id = String(entry?.id || entry || '').toUpperCase();
       if (hasSelection(id)) {
         removeFromSelection(id);
       } else {
-        const note = promptAndNormalizeNote('');
-        if (note === null) return;
-        addToSelection(entry, note);
+        addToSelection(entry, '');
       }
     }
 
@@ -766,13 +753,24 @@
 
       document.querySelectorAll('.card[data-vg]').forEach(card => {
         const id = card.getAttribute('data-vg') || '';
-        const btn = card.querySelector('.add-btn');
-        if (!btn) return;
+        const mainBtn = card.querySelector('.add-btn.main-add-btn');
+        const noteBtn = card.querySelector('.add-btn.note-btn');
         const selected = hasSelection(id);
         const noteTxt = (selection[id]?.note || '').trim();
-        btn.textContent = selected ? 'Ta bort från urval' : 'Lägg till i urval';
-        btn.setAttribute('aria-pressed', String(selected));
-        btn.title = selected && noteTxt ? `Anteckning: ${noteTxt}` : (isVG(id) ? `Lägg till/ta bort ${id} från urval` : 'Denna rad saknar giltigt VG-nummer');
+
+        if (mainBtn) {
+          mainBtn.textContent = selected ? 'Ta bort från urval' : 'Lägg till i urval';
+          mainBtn.setAttribute('aria-pressed', String(selected));
+          mainBtn.title = selected
+            ? (noteTxt ? `Anteckning finns – klicka "Anteckning" för att ändra` : `Ta bort ${id} från urval`)
+            : `Lägg till ${id} i urval`;
+        }
+
+        if (noteBtn) {
+          noteBtn.style.display = selected ? 'inline-flex' : 'none';
+          noteBtn.title = noteTxt ? `Anteckning: ${noteTxt}` : 'Lägg till anteckning';
+        }
+
         card.classList.toggle('selected', selected);
 
         let nl = card.querySelector('.note-line');
@@ -824,14 +822,7 @@
 
       if (btn.dataset.edit) {
         const id = btn.dataset.edit;
-        const current = (selection[id]?.note || '').trim();
-        const note = promptAndNormalizeNote(current);
-        if (note !== null) {
-          selection[id] = selection[id] || { note:'', data:null };
-          selection[id].note = note;
-          saveSelection();
-          updateSelectionUI();
-        }
+        editNoteForId(id);
       }
     });
 
@@ -1079,17 +1070,17 @@
           kv.appendChild(v);
         });
 
-        const btn = document.createElement('button');
-        btn.className = 'add-btn';
-        btn.type = 'button';
-        const existingNote = (selection[vg]?.note || '').trim();
-        btn.title = isVG(vg)
-          ? (existingNote ? `Anteckning: ${existingNote}` : `Lägg till/ta bort ${vg} från urval`)
-          : 'Denna rad saknar giltigt VG-nummer';
+        const btnRow = document.createElement('div');
+        btnRow.className = 'card-buttons';
+
+        const mainBtn = document.createElement('button');
+        mainBtn.className = 'add-btn main-add-btn';
+        mainBtn.type = 'button';
         const selected = hasSelection(vg);
-        btn.textContent = selected ? 'Ta bort från urval' : 'Lägg till i urval';
-        btn.setAttribute('aria-pressed', String(selected));
-        btn.addEventListener('click', (e) => {
+        mainBtn.textContent = selected ? 'Ta bort från urval' : 'Lägg till i urval';
+        mainBtn.setAttribute('aria-pressed', String(selected));
+        mainBtn.title = selected ? `Ta bort ${vg} från urval` : `Lägg till ${vg} i urval`;
+        mainBtn.addEventListener('click', (e) => {
           e.stopPropagation();
           if (!isVG(vg)) {
             alert('Denna rad saknar giltigt VG-nummer.');
@@ -1098,8 +1089,22 @@
           toggleSelection({ ...row, id: vg });
         });
 
+        const noteBtn = document.createElement('button');
+        noteBtn.className = 'add-btn note-btn';
+        noteBtn.type = 'button';
+        noteBtn.textContent = 'Anteckning';
+        noteBtn.style.display = selected ? 'inline-flex' : 'none';
+        noteBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (!isVG(vg) || !hasSelection(vg)) return;
+          editNoteForId(vg);
+        });
+
+        btnRow.appendChild(mainBtn);
+        btnRow.appendChild(noteBtn);
+
         card.appendChild(kv);
-        card.appendChild(btn);
+        card.appendChild(btnRow);
 
         if (selected) card.classList.add('selected');
 
