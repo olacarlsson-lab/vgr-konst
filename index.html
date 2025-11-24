@@ -8,6 +8,7 @@
 
   <!-- PWA -->
   <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/png" href="./icon-192.png">
   <link rel="apple-touch-icon" href="./icon-192.png">
   <meta name="theme-color" content="#020617" />
 
@@ -604,7 +605,7 @@
     <div id="selectionBar" style="display:flex; gap:8px; align-items:center;">
       <span id="selectionCount">Urval: 0</span>
       <button id="addAllBtn" type="button">Lägg till alla</button>
-      <button id="copyMailSelBtn" type="button">Kopiera/Maila urval</button>
+      <button id="copyMailSelBtn" type="button">Exportera urval</button>
       <button id="clearSelBtn" type="button">Rensa urval</button>
     </div>
 
@@ -654,12 +655,18 @@
   </dialog>
 
   <!-- Export Dialog -->
-  <dialog id="exportDialog">
+  <dialog id="exportDialog" style="max-width:700px; width:90vw;">
     <form method="dialog" style="padding:24px;">
-      <h3>Urval kopierat!</h3>
-      <p>Urvalet finns nu i ditt urklipp.</p>
+      <h3>Exportera urval</h3>
+      <p>Urvalet har kopierats till urklipp.</p>
 
-      <label for="emailSubject" style="display:block; margin-top:16px; font-weight:600; font-size:0.9rem;">Ämne för
+      <div style="margin-top:16px;">
+        <label style="display:block; font-weight:600; font-size:0.9rem; margin-bottom:8px;">Förhandsvisning (<span id="exportPreviewCount">0</span> objekt):</label>
+        <div id="exportPreview"
+          style="max-height:300px; overflow-y:auto; padding:12px; border:1px solid var(--border-soft); border-radius:4px; background:var(--field-bg); color:var(--text-main); font-size:0.85rem; white-space:pre-wrap; font-family:monospace; line-height:1.6;"></div>
+      </div>
+
+      <label for="emailSubject" style="display:block; margin-top:20px; font-weight:600; font-size:0.9rem;">Ämne för
         e-post:</label>
       <input type="text" id="emailSubject"
         style="width:100%; padding:8px; margin-top:8px; border:1px solid var(--border-soft); border-radius:4px; background:var(--field-bg); color:var(--text-main); font-size:16px;">
@@ -1495,6 +1502,8 @@
     const exportDialog = document.getElementById('exportDialog');
     const emailSubjectInput = document.getElementById('emailSubject');
     const exportDialogClose = document.getElementById('exportDialogClose');
+    const exportPreview = document.getElementById('exportPreview');
+    const exportPreviewCount = document.getElementById('exportPreviewCount');
 
     if (exportDialog) {
       exportDialogClose.addEventListener('click', () => exportDialog.close());
@@ -1577,6 +1586,15 @@
       // Förbered och visa dialog
       const defaultSubject = `Urval – VGR konst (${new Date().toLocaleDateString('sv-SE')})`;
       emailSubjectInput.value = defaultSubject;
+
+      // Fyll i förhandsvisning
+      if (exportPreview) {
+        exportPreview.textContent = text;
+      }
+      if (exportPreviewCount) {
+        exportPreviewCount.textContent = selectionSize();
+      }
+
       exportDialog.returnValue = '';
       exportDialog.showModal();
     }
