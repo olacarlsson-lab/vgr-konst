@@ -12,6 +12,11 @@
   <link rel="apple-touch-icon" href="./icon-192.png">
   <meta name="theme-color" content="#020617" />
 
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin="" />
+
   <style>
     :root {
       --brand: #38bdf8;
@@ -22,22 +27,22 @@
     :root[data-theme="dark"] {
       --body-bg: radial-gradient(circle at top, #0f172a 0, #020617 38%, #020617 100%);
       --header-bg: linear-gradient(to bottom, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.4), transparent 80%);
-      --text-main: #e5e7eb;
-      --text-muted: #9ca3af;
+      --text-main: #f3f4f6; /* Improved from #e5e7eb for better contrast */
+      --text-muted: #d1d5db; /* Improved from #9ca3af for WCAG AA compliance (4.5:1 on dark bg) */
 
       --panel-bg: rgba(15, 23, 42, 0.95);
       --card-bg: rgba(15, 23, 42, 0.95);
       --chip-bg: #0f172a;
 
-      --border-soft: #1f2937;
-      --border-strong: #1e293b;
+      --border-soft: #374151; /* Improved from #1f2937 for better visibility */
+      --border-strong: #4b5563; /* Improved from #1e293b */
 
       --field-bg: #020617;
 
       --btn-primary-fg: #0b1020;
       --btn-secondary-bg: #020617;
-      --btn-secondary-border: #1f2937;
-      --btn-secondary-fg: #9ca3af;
+      --btn-secondary-border: #374151;
+      --btn-secondary-fg: #d1d5db; /* Improved contrast */
 
       --selection-add-bg: #022c22;
       --selection-add-fg: #bbf7d0;
@@ -48,25 +53,25 @@
     :root[data-theme="light"] {
       --body-bg: linear-gradient(to bottom, #f5f7fa 0%, #e8ecf1 100%);
       --header-bg: linear-gradient(to bottom, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.85), transparent 80%);
-      --text-main: #1e293b;
-      --text-muted: #64748b;
+      --text-main: #0f172a; /* Improved from #1e293b for better contrast */
+      --text-muted: #475569; /* Improved from #64748b for WCAG AA compliance */
 
       --panel-bg: #f8fafc;
       --card-bg: #ffffff;
       --chip-bg: #e2e8f0;
 
       --border-soft: #cbd5e1;
-      --border-strong: #94a3b8;
+      --border-strong: #64748b; /* Improved from #94a3b8 */
 
       --field-bg: #f1f5f9;
 
       --btn-primary-fg: #f8fafc;
       --btn-secondary-bg: #f1f5f9;
       --btn-secondary-border: #cbd5e1;
-      --btn-secondary-fg: #475569;
+      --btn-secondary-fg: #334155; /* Improved from #475569 for better contrast */
 
       --selection-add-bg: #f0fdf4;
-      --selection-add-fg: #166534;
+      --selection-add-fg: #14532d; /* Improved from #166534 for better contrast */
       --selection-add-border: #86efac;
     }
 
@@ -80,6 +85,55 @@
       background: var(--body-bg);
       color: var(--text-main);
       min-height: 100vh;
+    }
+
+    /* Skip link for keyboard navigation */
+    .skip-link {
+      position: absolute;
+      top: -40px;
+      left: 0;
+      background: var(--brand);
+      color: #000;
+      padding: 8px 16px;
+      text-decoration: none;
+      z-index: 10000;
+      font-weight: 600;
+      border-radius: 0 0 4px 0;
+    }
+
+    .skip-link:focus {
+      top: 0;
+    }
+
+    /* Focus-visible styles for all interactive elements */
+    button:focus-visible,
+    a:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    textarea:focus-visible,
+    details:focus-visible,
+    [tabindex]:focus-visible {
+      outline: 3px solid var(--brand);
+      outline-offset: 2px;
+    }
+
+    .card:focus-visible {
+      outline: 3px solid var(--brand);
+      outline-offset: 2px;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, .12), 0 0 0 3px rgba(56, 189, 248, .3);
+    }
+
+    /* Visually hidden but accessible to screen readers */
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border-width: 0;
     }
 
     header {
@@ -139,6 +193,254 @@
       padding: 0 12px 28px;
     }
 
+    /* Universal Search Container */
+    #universalSearchContainer {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .search-wrapper {
+      position: relative;
+      flex: 1;
+    }
+
+    #universalSearch {
+      width: 100%;
+      padding: .85rem 2.5rem .85rem 1rem;
+      border: 1px solid var(--border-soft);
+      border-radius: 12px;
+      font-size: 1rem;
+      background: var(--field-bg);
+      color: var(--text-main);
+      transition: border-color .18s, box-shadow .18s, background .18s;
+      box-shadow: 0 2px 12px rgba(15, 23, 42, .08);
+    }
+
+    #universalSearch::placeholder {
+      color: var(--text-muted);
+    }
+
+    #universalSearch:focus {
+      outline: none;
+      border-color: var(--brand);
+      box-shadow: 0 0 0 2px rgba(56, 189, 248, .2), 0 2px 12px rgba(15, 23, 42, .08);
+    }
+
+    .clear-search-btn {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.3rem;
+      cursor: pointer;
+      padding: 4px 8px;
+      line-height: 1;
+      border-radius: 4px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .18s, background .18s;
+    }
+
+    .clear-search-btn.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .clear-search-btn:hover {
+      background: rgba(0, 0, 0, .08);
+      color: var(--text-main);
+    }
+
+    .toggle-advanced-btn {
+      padding: .75rem 1.2rem;
+      border: 1px solid var(--btn-secondary-border);
+      border-radius: 12px;
+      background: var(--btn-secondary-bg);
+      color: var(--btn-secondary-fg);
+      font-size: .9rem;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all .18s;
+    }
+
+    .toggle-advanced-btn:hover {
+      filter: brightness(1.05);
+      border-color: var(--brand);
+    }
+
+    /* Advanced Filters */
+    #advancedFilters {
+      margin-top: 10px;
+    }
+
+    #advancedFilters summary {
+      padding: 8px 0;
+      font-weight: 500;
+    }
+
+    /* Map View */
+    #mapViewContainer {
+      display: none;
+      margin-top: 14px;
+      height: 600px;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border-soft);
+      box-shadow: 0 2px 12px rgba(15, 23, 42, .08);
+    }
+
+    #mapViewContainer.active {
+      display: block;
+    }
+
+    #map {
+      height: 100%;
+      width: 100%;
+    }
+
+    /* Control bar layout */
+    .control-bar {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .control-bar-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .control-bar-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .control-bar-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .sorting-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .view-toggle-container {
+      display: flex;
+      gap: 8px;
+    }
+
+    .view-toggle-btn {
+      padding: 0.5rem 1rem;
+      border: 1px solid var(--btn-secondary-border);
+      border-radius: 8px;
+      background: var(--btn-secondary-bg);
+      color: var(--btn-secondary-fg);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all .18s;
+    }
+
+    .view-toggle-btn:hover {
+      filter: brightness(1.05);
+      border-color: var(--brand);
+    }
+
+    .view-toggle-btn.active {
+      background: var(--brand);
+      color: #000;
+      border-color: var(--brand);
+    }
+
+    /* Toolbar buttons (Urval, Uppdatera) */
+    .toolbar-btn {
+      padding: 0.5rem 1rem;
+      border: 1px solid var(--btn-secondary-border);
+      border-radius: 8px;
+      background: var(--btn-secondary-bg);
+      color: var(--btn-secondary-fg);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all .18s;
+      white-space: nowrap;
+    }
+
+    .toolbar-btn:hover {
+      filter: brightness(1.05);
+      border-color: var(--brand);
+    }
+
+    .map-info {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+    /* Leaflet popup customization */
+    .leaflet-popup-content-wrapper {
+      background: var(--card-bg);
+      color: var(--text-main);
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, .15);
+    }
+
+    .leaflet-popup-content {
+      margin: 12px;
+      font-size: 0.9rem;
+    }
+
+    .leaflet-popup-tip {
+      background: var(--card-bg);
+    }
+
+    .popup-content h4 {
+      margin: 0 0 8px 0;
+      font-size: 1rem;
+      color: var(--brand);
+    }
+
+    .popup-content p {
+      margin: 4px 0;
+      font-size: 0.85rem;
+    }
+
+    .popup-content .popup-label {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .popup-content .popup-add-btn {
+      margin-top: 10px;
+      padding: 6px 12px;
+      background: var(--brand);
+      color: var(--btn-primary-fg);
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .popup-content .popup-add-btn:hover {
+      filter: brightness(1.1);
+    }
+
     /* Sökfält */
     #searchForm {
       display: grid;
@@ -146,6 +448,7 @@
       gap: 10px 12px;
       background: var(--panel-bg);
       padding: 14px 14px 12px;
+      margin-top: 10px;
       border-radius: 16px;
       border: 1px solid var(--border-soft);
       box-shadow: 0 2px 8px rgba(15, 23, 42, .06);
@@ -237,39 +540,80 @@
       margin-top: 14px;
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
+      gap: 16px;
     }
 
     .card {
+      position: relative;
       background: var(--card-bg);
-      border-radius: 14px;
-      padding: 14px 14px;
+      border-radius: 16px;
+      padding: 16px;
       border: 1px solid var(--border-soft);
-      box-shadow: 0 2px 6px rgba(15, 23, 42, .04);
+      box-shadow: 0 2px 8px rgba(15, 23, 42, .06);
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
+      transition: transform .2s ease, box-shadow .2s ease;
+      overflow: hidden;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(15, 23, 42, .12);
+    }
+
+    /* Art type color accent stripe */
+    .card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--card-accent, var(--border-soft));
+      transition: width .2s ease;
+    }
+
+    .card:hover::before {
+      width: 5px;
+    }
+
+    /* Title - most prominent */
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-main);
+      line-height: 1.3;
+      margin-bottom: 2px;
+    }
+
+    /* Artist - secondary prominence */
+    .card-artist {
+      font-size: .95rem;
+      font-weight: 500;
+      color: var(--brand);
+      margin-bottom: 8px;
     }
 
     .kv {
       display: grid;
-      grid-template-columns: minmax(130px, 38%) 1fr;
-      /* mer plats för Framställningsår */
+      grid-template-columns: minmax(100px, 35%) 1fr;
       gap: 6px 10px;
       align-items: start;
     }
 
     .k {
       color: var(--text-muted);
-      font-size: .8rem;
+      font-size: .75rem;
       text-transform: uppercase;
       letter-spacing: .06em;
+      font-weight: 600;
     }
 
     .v {
       font-weight: 500;
       color: var(--text-main);
-      font-size: .9rem;
+      font-size: .85rem;
     }
 
     .empty {
@@ -317,10 +661,32 @@
 
     /* Urval/knapp-styles */
     .card.selected {
-      outline: 1px solid rgba(56, 189, 248, .7);
-      box-shadow:
-        0 18px 45px rgba(15, 23, 42, .4),
-        0 0 0 1px rgba(56, 189, 248, .4);
+      background: linear-gradient(to right, rgba(56, 189, 248, 0.05) 0%, var(--card-bg) 20%);
+      border-color: rgba(56, 189, 248, .4);
+      box-shadow: 0 8px 24px rgba(56, 189, 248, .15);
+    }
+
+    .card.selected::before {
+      width: 6px;
+      background: linear-gradient(180deg, var(--brand), var(--brand-dark));
+    }
+
+    .card.selected::after {
+      content: '✓';
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 24px;
+      height: 24px;
+      background: linear-gradient(135deg, var(--brand), var(--brand-dark));
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .75rem;
+      font-weight: bold;
+      box-shadow: 0 2px 8px rgba(56, 189, 248, .3);
     }
 
     .card-buttons {
@@ -525,6 +891,68 @@
         padding: 0 16px 32px;
       }
 
+      #universalSearchContainer {
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .search-wrapper {
+        width: 100%;
+      }
+
+      #universalSearch {
+        padding: 0.85rem 2.5rem 0.85rem 1rem;
+        font-size: 1rem;
+      }
+
+      .toggle-advanced-btn {
+        width: 100%;
+        padding: 0.75rem 1rem;
+      }
+
+      /* Mobile control bar adjustments */
+      .control-bar-top {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .view-toggle-container {
+        width: 100%;
+      }
+
+      .view-toggle-btn {
+        flex: 1;
+        justify-content: center;
+      }
+
+      .control-bar-actions {
+        width: 100%;
+      }
+
+      .toolbar-btn {
+        flex: 1;
+        justify-content: center;
+      }
+
+      .control-bar-bottom {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .sorting-controls {
+        width: 100%;
+        min-width: auto;
+      }
+
+      .sorting-controls select {
+        width: 100% !important;
+        max-width: none !important;
+      }
+
+      #totalCount {
+        text-align: center;
+      }
+
       #searchForm {
         grid-template-columns: 1fr;
         padding: 18px 16px 16px;
@@ -564,6 +992,8 @@
 </head>
 
 <body>
+  <a href="#main-content" class="skip-link">Hoppa till huvudinnehåll</a>
+
   <header>
     <div class="header-inner">
       <div class="title-block">
@@ -574,127 +1004,194 @@
     </div>
   </header>
 
-  <div class="wrap">
-    <!-- Formulär -->
-    <form id="searchForm" aria-label="Sök i datasetet">
-      <input type="search" id="creatorInput" placeholder="konstnär" autocomplete="off" />
-      <input type="search" id="titleInput" placeholder="titel" autocomplete="off" />
-      <input type="search" id="createdInput" placeholder="framställningsår" autocomplete="off" />
-      <select id="artformSelect">
-        <option value="">konsttyp (alla)</option>
-      </select>
-      <select id="artmediumSelect">
-        <option value="">teknik (alla)</option>
-      </select>
-      <input type="search" id="idInput" placeholder="vg-nummer" autocomplete="off" />
-      <input type="search" id="olderIdInput" placeholder="äldre id" autocomplete="off" />
-      <div class="actions">
-        <button id="searchBtn" type="submit">Sök</button>
-        <button id="clearBtn" type="button">Rensa</button>
+  <main id="main-content" class="wrap">
+    <!-- Universal Search -->
+    <div id="universalSearchContainer">
+      <div class="search-wrapper">
+        <label for="universalSearch" class="visually-hidden">Universell sökning</label>
+        <input type="search" id="universalSearch" placeholder="Sök konstverk (konstnär, titel, år, VG-nummer...)" autocomplete="off" aria-label="Sök konstverk efter konstnär, titel, år eller VG-nummer" />
+        <button type="button" id="clearSearchBtn" class="clear-search-btn" aria-label="Rensa sökning" title="Rensa sökning">×</button>
       </div>
-    </form>
-
-    <!-- Totaler + urvalspanel -->
-    <div id="totalCount"></div>
-    <div style="margin-top: 4px;">
-      <button id="reloadDataBtn" type="button"
-        style="background:none; border:none; color:var(--text-muted); font-size:0.8rem; cursor:pointer; text-decoration:underline; padding:0;">
-        Uppdatera data
-      </button>
-    </div>
-    <div id="selectionBar" style="display:flex; gap:8px; align-items:center;">
-      <span id="selectionCount">Urval: 0</span>
-      <button id="addAllBtn" type="button">Lägg till alla</button>
-      <button id="copyMailSelBtn" type="button">Exportera urval</button>
-      <button id="clearSelBtn" type="button">Rensa urval</button>
+      <button type="button" id="toggleAdvanced" class="toggle-advanced-btn" aria-expanded="false" aria-controls="advancedFilters">Avancerade filter</button>
     </div>
 
-    <!-- Expanderbar urvalslista -->
-    <details id="selectionDetails" style="margin-top:6px;">
-      <summary style="cursor:pointer; user-select:none;">Visa urval</summary>
-      <div id="selectionList" class="sel-list" aria-live="polite"></div>
+    <!-- Advanced Filters (Collapsible) -->
+    <details id="advancedFilters">
+      <summary style="display:none;"></summary>
+      <form id="searchForm" aria-label="Avancerade sökfilter" aria-labelledby="advancedFiltersHeading">
+        <h2 id="advancedFiltersHeading" class="visually-hidden">Avancerade filter</h2>
+
+        <label for="creatorInput" class="visually-hidden">Konstnär</label>
+        <input type="search" id="creatorInput" placeholder="konstnär" autocomplete="off" aria-label="Filtrera efter konstnär" />
+
+        <label for="titleInput" class="visually-hidden">Titel</label>
+        <input type="search" id="titleInput" placeholder="titel" autocomplete="off" aria-label="Filtrera efter titel" />
+
+        <label for="createdInput" class="visually-hidden">Framställningsår</label>
+        <input type="search" id="createdInput" placeholder="framställningsår" autocomplete="off" aria-label="Filtrera efter framställningsår" />
+
+        <label for="artformSelect" class="visually-hidden">Konsttyp</label>
+        <select id="artformSelect" aria-label="Filtrera efter konsttyp">
+          <option value="">konsttyp (alla)</option>
+        </select>
+
+        <label for="artmediumSelect" class="visually-hidden">Teknik</label>
+        <select id="artmediumSelect" aria-label="Filtrera efter teknik">
+          <option value="">teknik (alla)</option>
+        </select>
+
+        <label for="idInput" class="visually-hidden">VG-nummer</label>
+        <input type="search" id="idInput" placeholder="vg-nummer" autocomplete="off" aria-label="Filtrera efter VG-nummer" />
+
+        <label for="olderIdInput" class="visually-hidden">Äldre ID</label>
+        <input type="search" id="olderIdInput" placeholder="äldre id" autocomplete="off" aria-label="Filtrera efter äldre ID" />
+
+        <div class="actions">
+          <button id="searchBtn" type="submit" aria-label="Utför sökning med filter">Sök</button>
+          <button id="clearBtn" type="button" aria-label="Rensa alla filter">Rensa</button>
+        </div>
+      </form>
     </details>
 
-    <!-- Sorting Options -->
-    <div style="margin-top:12px; display:flex; align-items:center; gap:8px;">
-      <label for="sortSelect" style="font-size:0.85rem; color:var(--text-muted);">Sortera:</label>
-      <select id="sortSelect"
-        style="padding:4px 8px; font-size:0.85rem; background:var(--field-bg); color:var(--text-main); border:1px solid var(--border-soft); border-radius:6px;">
-        <option value="relevance">Relevans</option>
-        <option value="artist-az">Konstnär (A-Ö)</option>
-        <option value="title-az">Titel (A-Ö)</option>
-        <option value="year-old">År (Äldst först)</option>
-        <option value="year-new">År (Nyast först)</option>
-      </select>
+    <!-- Combined control bar: View toggle + Sorting + Actions -->
+    <div role="toolbar" aria-label="Visnings- och sorteringsalternativ" class="control-bar">
+      <!-- Top row: View toggle + Actions -->
+      <div class="control-bar-top">
+        <div class="view-toggle-container" role="group" aria-label="Välj visningsläge">
+          <button type="button" id="listViewBtn" class="view-toggle-btn active" aria-pressed="true" aria-label="Listvy - visar konstverk som lista">📋 Listvy</button>
+          <button type="button" id="mapViewBtn" class="view-toggle-btn" aria-pressed="false" aria-label="Kartvy - visar konstverk på karta">🗺️ Kartvy</button>
+        </div>
+
+        <div class="control-bar-actions">
+          <button id="reloadDataBtn" type="button" class="toolbar-btn" aria-label="Uppdatera data från servern">
+            🔄 Uppdatera
+          </button>
+          <button id="toggleSelectionPanel" type="button" class="toolbar-btn" aria-expanded="false" aria-controls="selectionPanel" aria-label="Visa eller dölj urvalspanel">
+            <span id="selectionPanelToggleText">⭐ Urval (0)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Bottom row: Sorting + Count -->
+      <div class="control-bar-bottom">
+        <div id="sortingOptions" class="sorting-controls">
+          <label for="sortSelect" style="font-size:0.85rem; color:var(--text-muted);">Sortera:</label>
+          <select id="sortSelect" aria-label="Välj sorteringsordning för konstverk"
+            style="padding:4px 8px; font-size:0.85rem; background:var(--field-bg); color:var(--text-main); border:1px solid var(--border-soft); border-radius:6px; width:auto; max-width:150px;">
+            <option value="relevance">Relevans</option>
+            <option value="artist-az">A-Ö konstnär</option>
+            <option value="title-az">A-Ö titel</option>
+            <option value="year-old">År äldst</option>
+            <option value="year-new">År nyast</option>
+          </select>
+        </div>
+        <div id="totalCount" style="font-size:0.85rem; color:var(--text-muted); white-space:nowrap;" role="status" aria-live="polite"></div>
+      </div>
     </div>
 
-    <div id="cards" class="cards" role="list"></div>
-    <div id="empty" class="empty" hidden>Inga resultat.</div>
+    <!-- Collapsible Selection Panel -->
+    <section aria-labelledby="selectionHeading">
+      <details id="selectionPanel" style="margin-top:8px; margin-bottom:8px;">
+        <summary style="display:none;"></summary>
+        <div style="background:var(--panel-bg); padding:10px; border-radius:10px; border:1px solid var(--border-soft);">
+          <h2 id="selectionHeading" class="visually-hidden">Urvalspanel</h2>
+          <div id="selectionBar" style="display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin-bottom:8px;">
+            <span id="selectionCount" style="font-size:0.85rem; font-weight:600;" aria-live="polite" aria-atomic="true">Urval: 0</span>
+            <button id="addAllBtn" type="button" style="font-size:0.8rem; padding:4px 10px;" aria-label="Lägg till alla synliga konstverk i urval">Lägg till alla</button>
+            <button id="copyMailSelBtn" type="button" style="font-size:0.8rem; padding:4px 10px;" aria-label="Exportera urval till e-post eller urklipp">Exportera urval</button>
+            <button id="clearSelBtn" type="button" style="font-size:0.8rem; padding:4px 10px;" aria-label="Rensa hela urvalet">Rensa urval</button>
+          </div>
+
+          <!-- Expanderbar urvalslista -->
+          <details id="selectionDetails">
+            <summary style="cursor:pointer; user-select:none; font-size:0.85rem; color:var(--text-muted);" aria-label="Visa eller dölj urval detaljer">Visa detaljer</summary>
+            <div id="selectionList" class="sel-list" role="list" aria-live="polite"></div>
+          </details>
+        </div>
+      </details>
+    </section>
+
+    <!-- Map View -->
+    <section id="mapViewContainer" aria-label="Kartvy av konstverk" role="region">
+      <div id="map" role="application" aria-label="Interaktiv karta som visar konstverk med geografiska koordinater"></div>
+    </section>
+    <div id="mapInfo" class="map-info" style="display:none;" role="status" aria-live="polite"></div>
+
+    <!-- List View -->
+    <section id="listViewContainer" aria-label="Listvy av konstverk" role="region">
+      <div id="cards" class="cards" role="list" aria-label="Konstverk resultat"></div>
+      <div id="empty" class="empty" hidden role="status">Inga resultat.</div>
+    </section>
 
     <!-- Load More Button -->
     <div id="loadMoreContainer" style="margin-top:20px; text-align:center; display:none;">
-      <button id="loadMoreBtn" type="button"
+      <button id="loadMoreBtn" type="button" aria-label="Ladda fler konstverk resultat"
         style="padding:10px 32px; background:var(--btn-secondary-bg); color:var(--btn-secondary-fg); border:1px solid var(--border-soft); border-radius:999px; cursor:pointer; font-size:0.9rem; font-weight:600;">
         Visa fler resultat
       </button>
     </div>
-  </div>
+  </main>
 
   <!-- Note Dialog -->
-  <dialog id="noteDialog">
+  <dialog id="noteDialog" aria-labelledby="noteDialogHeading">
     <form method="dialog" style="padding:24px;">
-      <h3>Redigera anteckning</h3>
-      <textarea id="noteDialogInput" placeholder="Skriv din anteckning här..."></textarea>
+      <h3 id="noteDialogHeading">Redigera anteckning</h3>
+      <label for="noteDialogInput" class="visually-hidden">Anteckning</label>
+      <textarea id="noteDialogInput" placeholder="Skriv din anteckning här..." aria-label="Anteckningsfält för konstverk"></textarea>
       <div class="dialog-actions">
         <button type="button" id="noteDialogCancel"
-          style="background:transparent; border:1px solid var(--border-soft); color:var(--text-muted);">Avbryt</button>
+          style="background:transparent; border:1px solid var(--border-soft); color:var(--text-muted);" aria-label="Avbryt och stäng dialog">Avbryt</button>
         <button type="submit" id="noteDialogSave" value="save"
-          style="background:var(--brand); color:#000; border:none;">Spara</button>
+          style="background:var(--brand); color:#000; border:none;" aria-label="Spara anteckning">Spara</button>
       </div>
     </form>
   </dialog>
 
   <!-- Export Dialog -->
-  <dialog id="exportDialog" style="max-width:700px; width:90vw;">
+  <dialog id="exportDialog" style="max-width:700px; width:90vw;" aria-labelledby="exportDialogHeading">
     <form method="dialog" style="padding:24px;">
-      <h3>Exportera urval</h3>
+      <h3 id="exportDialogHeading">Exportera urval</h3>
       <p>Urvalet har kopierats till urklipp.</p>
 
       <div style="margin-top:16px;">
-        <label style="display:block; font-weight:600; font-size:0.9rem; margin-bottom:8px;">Förhandsvisning (<span id="exportPreviewCount">0</span> objekt):</label>
-        <div id="exportPreview"
+        <label for="exportPreview" style="display:block; font-weight:600; font-size:0.9rem; margin-bottom:8px;">Förhandsvisning (<span id="exportPreviewCount" aria-live="polite">0</span> objekt):</label>
+        <div id="exportPreview" role="region" aria-label="Förhandsvisning av urval"
           style="max-height:300px; overflow-y:auto; padding:12px; border:1px solid var(--border-soft); border-radius:4px; background:var(--field-bg); color:var(--text-main); font-size:0.85rem; white-space:pre-wrap; font-family:monospace; line-height:1.6;"></div>
       </div>
 
       <label for="emailSubject" style="display:block; margin-top:20px; font-weight:600; font-size:0.9rem;">Ämne för
         e-post:</label>
-      <input type="text" id="emailSubject"
+      <input type="text" id="emailSubject" aria-label="E-postämne för urval"
         style="width:100%; padding:8px; margin-top:8px; border:1px solid var(--border-soft); border-radius:4px; background:var(--field-bg); color:var(--text-main); font-size:16px;">
 
       <div class="dialog-actions" style="margin-top:24px;">
-        <button type="button" id="exportDialogClose"
+        <button type="button" id="exportDialogClose" aria-label="Stäng exportdialog"
           style="background:transparent; border:1px solid var(--border-soft); color:var(--text-muted);">Stäng</button>
-        <button type="submit" id="exportDialogSend" value="send"
+        <button type="submit" id="exportDialogSend" value="send" aria-label="Skicka urval via e-post"
           style="background:var(--brand); color:#000; border:none;">Skicka e-post</button>
       </div>
     </form>
   </dialog>
 
   <!-- Confirm Dialog -->
-  <dialog id="confirmDialog">
+  <dialog id="confirmDialog" aria-labelledby="confirmTitle" aria-describedby="confirmMessage">
     <form method="dialog" style="padding:24px;">
       <h3 id="confirmTitle">Bekräfta</h3>
       <p id="confirmMessage">Är du säker?</p>
       <div class="dialog-actions" style="margin-top:24px;">
-        <button type="button" id="confirmCancel"
+        <button type="button" id="confirmCancel" aria-label="Avbryt åtgärd"
           style="background:transparent; border:1px solid var(--border-soft); color:var(--text-muted);">Avbryt</button>
-        <button type="submit" id="confirmOk" value="ok"
+        <button type="submit" id="confirmOk" value="ok" aria-label="Bekräfta åtgärd"
           style="background:var(--brand); color:#000; border:none;">OK</button>
       </div>
     </form>
   </dialog>
 
   <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""></script>
   <script>
     window.onerror = function (msg, url, line, col, error) {
       const div = document.getElementById('totalCount');
@@ -1287,8 +1784,12 @@
       const total = document.getElementById('totalCount');
       total.textContent = `Totalt ${filtered.length} träffar`;
 
-
       document.getElementById('empty').hidden = filtered.length > 0;
+
+      // Update map if in map view
+      if (currentView === 'map') {
+        displayArtworksOnMap(filtered);
+      }
     }
 
     // ======= Formulär-sökning =======
@@ -1479,7 +1980,17 @@
 
         const details = document.getElementById('selectionDetails');
         const summary = details?.querySelector('summary');
-        if (summary) summary.textContent = selectionSize() ? `Visa urval (${selectionSize()})` : 'Visa urval';
+        if (summary) summary.textContent = selectionSize() ? `Visa detaljer` : 'Visa detaljer';
+      }
+
+      // Update toggle button text
+      const toggleText = document.getElementById('selectionPanelToggleText');
+      const selectionPanel = document.getElementById('selectionPanel');
+      if (toggleText) {
+        const count = selectionSize();
+        const isOpen = selectionPanel?.open || false;
+        const prefix = isOpen ? 'Dölj' : 'Visa';
+        toggleText.textContent = `⭐ ${prefix} urval (${count})`;
       }
     }
 
@@ -1664,12 +2175,49 @@
       const hasMore = data.length > displayedCount;
 
       const frag = document.createDocumentFragment();
-      itemsToShow.forEach(row => {
-        const card = document.createElement('div');
+      itemsToShow.forEach((row, index) => {
+        const card = document.createElement('article');
         card.className = 'card';
+        card.setAttribute('role', 'listitem');
+        card.setAttribute('tabindex', '0');
 
         const vg = (row['id'] || '').toString().toUpperCase();
-        if (isVG(vg)) card.setAttribute('data-vg', vg);
+        if (isVG(vg)) {
+          card.setAttribute('data-vg', vg);
+          card.setAttribute('aria-label', `Konstverk ${index + 1}: ${row['title'] || 'Utan titel'} av ${row['creator'] || 'okänd konstnär'}`);
+        }
+
+        // Set color accent based on artform
+        const artform = row['artform'] || row['﻿artform'] || '';
+        const artformLower = artform.toLowerCase();
+        let accentColor = '#e5e7eb'; // default gray
+
+        if (artformLower.includes('måleri')) accentColor = '#f59e0b'; // amber
+        else if (artformLower.includes('skulptur')) accentColor = '#8b5cf6'; // purple
+        else if (artformLower.includes('grafik')) accentColor = '#06b6d4'; // cyan
+        else if (artformLower.includes('textil')) accentColor = '#ec4899'; // pink
+        else if (artformLower.includes('fotografi')) accentColor = '#10b981'; // emerald
+        else if (artformLower.includes('keramik')) accentColor = '#f97316'; // orange
+
+        card.style.setProperty('--card-accent', accentColor);
+
+        // Extract title and creator for prominent display
+        const title = row['title'] || row['﻿title'] || 'Utan titel';
+        const creator = row['creator'] || row['﻿creator'] || '';
+
+        // Create title element
+        const titleEl = document.createElement('div');
+        titleEl.className = 'card-title';
+        titleEl.textContent = title;
+        card.appendChild(titleEl);
+
+        // Create artist element (if exists)
+        if (creator) {
+          const artistEl = document.createElement('div');
+          artistEl.className = 'card-artist';
+          artistEl.textContent = creator;
+          card.appendChild(artistEl);
+        }
 
         const kv = document.createElement('div');
         kv.className = 'kv';
@@ -1678,6 +2226,9 @@
           const key = col.replace(/^\uFEFF/, '');
           let val = row[key] ?? row[col] ?? ''; // Hantera både clean key och original key
           if (key === 'id' && typeof val === 'string') val = val.toUpperCase();
+
+          // Skip title and creator since we're displaying them prominently above
+          if (key === 'title' || key === 'creator') return;
 
           const k = document.createElement('div');
           k.className = 'k';
@@ -1745,6 +2296,7 @@
               plusBtn.textContent = '+';
               plusBtn.className = 'filter-btn';
               plusBtn.title = 'Lägg till som filter';
+              plusBtn.setAttribute('aria-label', `Lägg till filter för ${columnsMap[col]}: ${val}`);
 
               plusBtn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -1780,6 +2332,7 @@
               minusBtn.textContent = '−';
               minusBtn.className = 'filter-btn';
               minusBtn.title = 'Ta bort filter';
+              minusBtn.setAttribute('aria-label', `Ta bort filter för ${columnsMap[col]}: ${val}`);
 
               minusBtn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -1843,6 +2396,91 @@
 
         if (selected) card.classList.add('selected');
 
+        // Add keyboard navigation support
+        card.addEventListener('keydown', (e) => {
+          // Enter or Space to toggle selection
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            if (isVG(vg)) {
+              toggleSelection({ ...row, id: vg });
+            }
+          }
+          // Arrow keys for 2D grid navigation
+          else if (['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+            e.preventDefault();
+            const cards = Array.from(document.querySelectorAll('.card'));
+            const currentIndex = cards.indexOf(card);
+
+            // Calculate grid layout based on card positions
+            const cardRect = card.getBoundingClientRect();
+            const cardsWithPositions = cards.map((c, idx) => ({
+              element: c,
+              index: idx,
+              rect: c.getBoundingClientRect()
+            }));
+
+            let targetCard = null;
+
+            if (e.key === 'ArrowRight') {
+              // Find card to the right (same row, next column)
+              targetCard = cardsWithPositions.find((c, idx) =>
+                idx > currentIndex &&
+                Math.abs(c.rect.top - cardRect.top) < 10 && // Same row (tolerance for alignment)
+                c.rect.left > cardRect.left
+              );
+              // If no card to the right, go to first card on next row
+              if (!targetCard) {
+                targetCard = cardsWithPositions.find(c => c.rect.top > cardRect.bottom - 10);
+              }
+            }
+            else if (e.key === 'ArrowLeft') {
+              // Find card to the left (same row, previous column)
+              const leftCards = cardsWithPositions.filter((c, idx) =>
+                idx < currentIndex &&
+                Math.abs(c.rect.top - cardRect.top) < 10 &&
+                c.rect.right < cardRect.right
+              );
+              targetCard = leftCards[leftCards.length - 1]; // Get closest to the left
+              // If no card to the left, go to last card on previous row
+              if (!targetCard) {
+                const prevRowCards = cardsWithPositions.filter(c => c.rect.bottom < cardRect.top + 10);
+                targetCard = prevRowCards[prevRowCards.length - 1];
+              }
+            }
+            else if (e.key === 'ArrowDown') {
+              // Find card below (next row, similar horizontal position)
+              const belowCards = cardsWithPositions.filter(c => c.rect.top > cardRect.bottom - 10);
+              // Find the one with closest horizontal alignment
+              targetCard = belowCards.reduce((closest, c) => {
+                if (!closest) return c;
+                const closestDiff = Math.abs(closest.rect.left - cardRect.left);
+                const currentDiff = Math.abs(c.rect.left - cardRect.left);
+                return currentDiff < closestDiff ? c : closest;
+              }, null);
+            }
+            else if (e.key === 'ArrowUp') {
+              // Find card above (previous row, similar horizontal position)
+              const aboveCards = cardsWithPositions.filter(c => c.rect.bottom < cardRect.top + 10);
+              // Find the one with closest horizontal alignment
+              targetCard = aboveCards.reduce((closest, c) => {
+                if (!closest) return c;
+                const closestDiff = Math.abs(closest.rect.left - cardRect.left);
+                const currentDiff = Math.abs(c.rect.left - cardRect.left);
+                return currentDiff < closestDiff ? c : closest;
+              }, null);
+            }
+
+            // Focus the target card, or fallback to simple next/previous
+            if (targetCard) {
+              targetCard.element.focus();
+            } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+              cards[Math.min(currentIndex + 1, cards.length - 1)]?.focus();
+            } else {
+              cards[Math.max(currentIndex - 1, 0)]?.focus();
+            }
+          }
+        });
+
         frag.appendChild(card);
       });
 
@@ -1894,14 +2532,194 @@
       confirmDialog.showModal();
     }
 
+    // ======= Universal Search Handler =======
+    const universalSearchInput = document.getElementById('universalSearch');
+    const toggleAdvancedBtn = document.getElementById('toggleAdvanced');
+    const advancedFiltersDetails = document.getElementById('advancedFilters');
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
+
+    // Toggle clear button visibility
+    function updateClearButtonVisibility() {
+      if (universalSearchInput && clearSearchBtn) {
+        if (universalSearchInput.value.trim().length > 0) {
+          clearSearchBtn.classList.add('visible');
+        } else {
+          clearSearchBtn.classList.remove('visible');
+        }
+      }
+    }
+
+    // Clear search functionality
+    clearSearchBtn?.addEventListener('click', () => {
+      if (universalSearchInput) {
+        universalSearchInput.value = '';
+        updateClearButtonVisibility();
+        // Reset to show all results
+        runSearchFromForm();
+        // Focus back on search field
+        universalSearchInput.focus();
+      }
+    });
+
+    // Toggle advanced filters
+    toggleAdvancedBtn?.addEventListener('click', () => {
+      if (advancedFiltersDetails) {
+        advancedFiltersDetails.open = !advancedFiltersDetails.open;
+        // Update aria-expanded and button text
+        toggleAdvancedBtn.setAttribute('aria-expanded', advancedFiltersDetails.open.toString());
+        toggleAdvancedBtn.textContent = advancedFiltersDetails.open ? 'Dölj avancerade filter' : 'Avancerade filter';
+      }
+    });
+
+    // Universal search input handler with debounce
+    let universalSearchTimeout = null;
+    universalSearchInput?.addEventListener('input', (e) => {
+      updateClearButtonVisibility();
+      clearTimeout(universalSearchTimeout);
+      universalSearchTimeout = setTimeout(() => {
+        const query = e.target.value.trim();
+
+        // Clear advanced filters when using universal search
+        if (query) {
+          clearAllFilters();
+        }
+
+        // Perform search across multiple fields
+        if (query) {
+          const params = {
+            creator: query,
+            title: query,
+            created: query,
+            id: query,
+            'older id': query
+          };
+          performUniversalSearch(params);
+        } else {
+          // If search is empty, show all results
+          runSearchFromForm();
+        }
+      }, 300); // 300ms debounce
+    });
+
+    // Universal search function that searches across all fields
+    async function performUniversalSearch(searchParams) {
+      if (!isDataLoaded) return;
+
+      const searchQuery = searchParams.creator; // All fields have the same query value
+      const searchLower = searchQuery.toLowerCase();
+
+      // Search across all fields with different strategies
+      const results = allData.filter(item => {
+        // Fuzzy matching for creator and title (case-insensitive contains)
+        if (item.creator && item.creator.toLowerCase().includes(searchLower)) {
+          return true;
+        }
+
+        if (item.title && item.title.toLowerCase().includes(searchLower)) {
+          return true;
+        }
+
+        // Exact/partial match for ID fields
+        if (item.id && item.id.toString().toLowerCase().includes(searchLower)) {
+          return true;
+        }
+
+        // Check older ID
+        const olderId = item['older id'] || item['\uFEFFolder id'];
+        if (olderId && olderId.toString().toLowerCase().includes(searchLower)) {
+          return true;
+        }
+
+        // Partial match for year
+        if (item.created && item.created.toString().toLowerCase().includes(searchLower)) {
+          return true;
+        }
+
+        // Check artform
+        if (item.artform && item.artform.toLowerCase().includes(searchLower)) {
+          return true;
+        }
+
+        // Check artmedium
+        if (item.artmedium && item.artmedium.toLowerCase().includes(searchLower)) {
+          return true;
+        }
+
+        return false;
+      });
+
+      // Sort by relevance (exact matches first, then starts-with, then contains)
+      results.sort((a, b) => {
+        let scoreA = 0;
+        let scoreB = 0;
+
+        const calculateScore = (item) => {
+          let score = 0;
+          const q = searchLower;
+
+          // Higher scores for exact matches and starts-with
+          if (item.creator && item.creator.toLowerCase() === q) score += 100;
+          else if (item.creator && item.creator.toLowerCase().startsWith(q)) score += 50;
+          else if (item.creator && item.creator.toLowerCase().includes(q)) score += 10;
+
+          if (item.title && item.title.toLowerCase() === q) score += 90;
+          else if (item.title && item.title.toLowerCase().startsWith(q)) score += 45;
+          else if (item.title && item.title.toLowerCase().includes(q)) score += 9;
+
+          if (item.id && item.id.toString().toLowerCase() === q) score += 80;
+          else if (item.id && item.id.toString().toLowerCase().includes(q)) score += 40;
+
+          const olderId = item['older id'] || item['\uFEFFolder id'];
+          if (olderId && olderId.toString().toLowerCase() === q) score += 70;
+          else if (olderId && olderId.toString().toLowerCase().includes(q)) score += 35;
+
+          if (item.created && item.created.toString().toLowerCase() === q) score += 60;
+          else if (item.created && item.created.toString().toLowerCase().includes(q)) score += 30;
+
+          return score;
+        };
+
+        scoreA = calculateScore(a);
+        scoreB = calculateScore(b);
+
+        return scoreB - scoreA; // Higher score first
+      });
+
+      // Save and render
+      currentResults = results;
+
+      const sortOption = document.getElementById('sortSelect')?.value || 'relevance';
+      // Only apply additional sorting if not already in relevance mode
+      const sorted = sortOption === 'relevance' ? results : sortResults(results, sortOption, searchParams);
+
+      displayedCount = ITEMS_PER_PAGE;
+      renderCards(sorted);
+
+      const total = document.getElementById('totalCount');
+      total.textContent = `Totalt ${sorted.length} träffar`;
+      document.getElementById('empty').hidden = sorted.length > 0;
+
+      // Update map if in map view
+      if (currentView === 'map') {
+        displayArtworksOnMap(sorted);
+      }
+    }
+
     // ======= Händelser =======
     document.getElementById('searchForm').addEventListener('submit', e => {
       e.preventDefault();
+      // Clear universal search when using advanced filters
+      if (universalSearchInput) {
+        universalSearchInput.value = '';
+      }
       runSearchFromForm();
     });
 
     document.getElementById('clearBtn').addEventListener('click', () => {
       clearAllFilters();
+      if (universalSearchInput) {
+        universalSearchInput.value = '';
+      }
       runSearchFromForm();
     });
 
@@ -1940,6 +2758,171 @@
     document.getElementById('loadMoreBtn')?.addEventListener('click', () => {
       displayedCount += ITEMS_PER_PAGE;
       renderCards(currentResults);
+    });
+
+    // ======= Map Functionality =======
+    let map = null;
+    let markersLayer = null;
+    let currentView = 'list'; // 'list' or 'map'
+
+    function initMap() {
+      if (map) return; // Already initialized
+
+      // Center on Västra Götaland, Sweden
+      map = L.map('map').setView([58.0, 13.0], 8);
+
+      // Add OpenStreetMap tiles
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 18
+      }).addTo(map);
+
+      markersLayer = L.layerGroup().addTo(map);
+    }
+
+    function filterArtworksWithCoordinates(artworks) {
+      return artworks.filter(item => {
+        const lat = item.latitude;
+        const lon = item.longitude;
+        return lat && lon &&
+               String(lat).trim() !== '' &&
+               String(lon).trim() !== '' &&
+               !isNaN(parseFloat(lat)) &&
+               !isNaN(parseFloat(lon));
+      });
+    }
+
+    function displayArtworksOnMap(artworks) {
+      if (!map) initMap();
+
+      // Clear existing markers
+      markersLayer.clearLayers();
+
+      const artworksWithCoords = filterArtworksWithCoordinates(artworks);
+
+      if (artworksWithCoords.length === 0) {
+        document.getElementById('mapInfo').style.display = 'block';
+        document.getElementById('mapInfo').textContent = 'Inga konstverk med koordinater hittades i detta urval.';
+        return;
+      }
+
+      document.getElementById('mapInfo').style.display = 'block';
+      document.getElementById('mapInfo').textContent = `Visar ${artworksWithCoords.length} konstverk med koordinater på kartan.`;
+
+      // Add markers for each artwork
+      const bounds = [];
+      artworksWithCoords.forEach(item => {
+        const lat = parseFloat(item.latitude);
+        const lon = parseFloat(item.longitude);
+
+        if (!isNaN(lat) && !isNaN(lon)) {
+          bounds.push([lat, lon]);
+
+          const marker = L.marker([lat, lon]).addTo(markersLayer);
+
+          // Create popup content
+          const popupContent = `
+            <div class="popup-content">
+              <h4>${item.title || 'Utan titel'}</h4>
+              <p><span class="popup-label">Konstnär:</span> ${item.creator || 'Okänd'}</p>
+              <p><span class="popup-label">År:</span> ${item.created || 'Okänt'}</p>
+              <p><span class="popup-label">Konsttyp:</span> ${item.artform || 'Okänd'}</p>
+              <p><span class="popup-label">Teknik:</span> ${item.artmedium || 'Okänd'}</p>
+              <p><span class="popup-label">VG-nummer:</span> ${item.id || 'Okänt'}</p>
+              ${!hasSelection(item.id) ?
+                `<button class="popup-add-btn" onclick="addToSelectionFromMap('${item.id}')">Lägg till i urval</button>` :
+                `<p style="color: var(--brand); font-weight: 600; margin-top: 10px;">✓ Finns i urval</p>`
+              }
+            </div>
+          `;
+
+          marker.bindPopup(popupContent);
+        }
+      });
+
+      // Fit map to show all markers
+      if (bounds.length > 0) {
+        map.fitBounds(bounds, { padding: [50, 50] });
+      }
+
+      // Invalidate size to ensure proper rendering
+      setTimeout(() => {
+        if (map) map.invalidateSize();
+      }, 100);
+    }
+
+    // Global function for adding from map popup
+    window.addToSelectionFromMap = function(vgId) {
+      const artwork = allData.find(item => item.id === vgId);
+      if (artwork) {
+        addToSelection(artwork, '');
+        // Refresh map to update popup
+        displayArtworksOnMap(currentView === 'map' ? currentResults : allData);
+      }
+    };
+
+    // View toggle functionality
+    const listViewBtn = document.getElementById('listViewBtn');
+    const mapViewBtn = document.getElementById('mapViewBtn');
+    const listViewContainer = document.getElementById('listViewContainer');
+    const mapViewContainer = document.getElementById('mapViewContainer');
+    const sortingOptions = document.getElementById('sortingOptions');
+    const loadMoreContainer = document.getElementById('loadMoreContainer');
+    const mapInfo = document.getElementById('mapInfo');
+
+    listViewBtn?.addEventListener('click', () => {
+      currentView = 'list';
+      listViewBtn.classList.add('active');
+      mapViewBtn.classList.remove('active');
+      // Update aria-pressed for accessibility
+      listViewBtn.setAttribute('aria-pressed', 'true');
+      mapViewBtn.setAttribute('aria-pressed', 'false');
+      listViewContainer.style.display = 'block';
+      mapViewContainer.classList.remove('active');
+      sortingOptions.style.display = 'flex';
+      loadMoreContainer.style.display = currentResults.length > displayedCount ? 'block' : 'none';
+      mapInfo.style.display = 'none';
+    });
+
+    mapViewBtn?.addEventListener('click', () => {
+      currentView = 'map';
+      mapViewBtn.classList.add('active');
+      listViewBtn.classList.remove('active');
+      // Update aria-pressed for accessibility
+      mapViewBtn.setAttribute('aria-pressed', 'true');
+      listViewBtn.setAttribute('aria-pressed', 'false');
+      listViewContainer.style.display = 'none';
+      mapViewContainer.classList.add('active');
+      sortingOptions.style.display = 'none';
+      loadMoreContainer.style.display = 'none';
+
+      // Check if any filters are active
+      const hasActiveFilters = universalSearchInput?.value.trim().length > 0 ||
+                               document.getElementById('creatorInput')?.value.trim().length > 0 ||
+                               document.getElementById('titleInput')?.value.trim().length > 0 ||
+                               document.getElementById('createdInput')?.value.trim().length > 0 ||
+                               document.getElementById('artformSelect')?.value !== '' ||
+                               document.getElementById('artmediumSelect')?.value !== '' ||
+                               document.getElementById('idInput')?.value.trim().length > 0 ||
+                               document.getElementById('olderIdInput')?.value.trim().length > 0;
+
+      // Show filtered results if filters are active, otherwise show all data
+      const artworksToShow = hasActiveFilters && currentResults.length > 0 ? currentResults : allData;
+      displayArtworksOnMap(artworksToShow);
+    });
+
+    // ======= Selection Panel Toggle =======
+    const toggleSelectionPanel = document.getElementById('toggleSelectionPanel');
+    const selectionPanel = document.getElementById('selectionPanel');
+
+    toggleSelectionPanel?.addEventListener('click', () => {
+      if (selectionPanel) {
+        selectionPanel.open = !selectionPanel.open;
+        // Update aria-expanded for accessibility
+        toggleSelectionPanel.setAttribute('aria-expanded', selectionPanel.open.toString());
+        // Update button text
+        updateSelectionUI();
+      }
     });
 
     // ======= Init: dropdowns + starta laddning =======
