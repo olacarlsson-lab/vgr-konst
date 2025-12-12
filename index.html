@@ -1110,7 +1110,7 @@
     <div id="universalSearchContainer">
       <div class="search-wrapper">
         <label for="universalSearch" class="visually-hidden">Universell sökning</label>
-        <input type="search" id="universalSearch" placeholder="Sök konstverk (konstnär, titel, år, VG-nummer...)" autocomplete="off" aria-label="Sök konstverk efter konstnär, titel, år eller VG-nummer" />
+        <input type="text" id="universalSearch" placeholder="Sök konstverk (konstnär, titel, år, VG-nummer...)" autocomplete="off" aria-label="Sök konstverk efter konstnär, titel, år eller VG-nummer" />
         <button type="button" id="clearSearchBtn" class="clear-search-btn" aria-label="Rensa sökning" title="Rensa sökning">×</button>
       </div>
       <button type="button" id="toggleAdvanced" class="toggle-advanced-btn" aria-expanded="false" aria-controls="advancedFilters">Avancerade filter</button>
@@ -2403,6 +2403,9 @@
           const artistEl = document.createElement('div');
           artistEl.className = 'card-artist';
 
+          const ops = document.createElement('span');
+          ops.className = 'filter-ops';
+
           const creatorLink = document.createElement('a');
           creatorLink.href = 'javascript:void(0)';
           creatorLink.textContent = creator;
@@ -2422,7 +2425,58 @@
             return false;
           };
 
-          artistEl.appendChild(creatorLink);
+          ops.appendChild(creatorLink);
+
+          // Check if this creator is already filtered
+          const creatorFieldEl = document.getElementById('creatorInput');
+          let currentCreatorVal = '';
+          if (creatorFieldEl) {
+            currentCreatorVal = creatorFieldEl.value;
+          }
+
+          const isCreatorActive = normalizeText(String(currentCreatorVal)) === normalizeText(String(creator));
+
+          if (!isCreatorActive) {
+            // + button: add this creator filter
+            const plusBtn = document.createElement('button');
+            plusBtn.type = 'button';
+            plusBtn.textContent = '+';
+            plusBtn.className = 'filter-btn';
+            plusBtn.title = 'Lägg till som filter';
+            plusBtn.setAttribute('aria-label', `Lägg till filter för konstnär: ${creator}`);
+
+            plusBtn.addEventListener('click', (e) => {
+              e.preventDefault();
+              const fieldEl = document.getElementById('creatorInput');
+              if (fieldEl) {
+                fieldEl.value = creator;
+              }
+              runSearchFromForm();
+            });
+
+            ops.appendChild(plusBtn);
+          } else {
+            // − button: remove this creator filter
+            const minusBtn = document.createElement('button');
+            minusBtn.type = 'button';
+            minusBtn.textContent = '−';
+            minusBtn.className = 'filter-btn';
+            minusBtn.title = 'Ta bort filter';
+            minusBtn.setAttribute('aria-label', `Ta bort filter för konstnär: ${creator}`);
+
+            minusBtn.addEventListener('click', (e) => {
+              e.preventDefault();
+              const fieldEl = document.getElementById('creatorInput');
+              if (fieldEl) {
+                fieldEl.value = '';
+              }
+              runSearchFromForm();
+            });
+
+            ops.appendChild(minusBtn);
+          }
+
+          artistEl.appendChild(ops);
           card.appendChild(artistEl);
         }
 
