@@ -2404,13 +2404,13 @@
           artistEl.className = 'card-artist';
 
           const creatorLink = document.createElement('a');
-          creatorLink.href = '#';
+          creatorLink.href = 'javascript:void(0)';
           creatorLink.textContent = creator;
           creatorLink.className = 'field-link';
           creatorLink.style.color = 'inherit';
           creatorLink.style.textDecoration = 'none';
 
-          const handleCreatorClick = (e) => {
+          creatorLink.onclick = (e) => {
             e.preventDefault();
             e.stopPropagation();
             clearAllFilters();
@@ -2419,10 +2419,8 @@
               fieldEl.value = creator;
             }
             runSearchFromForm();
+            return false;
           };
-
-          creatorLink.addEventListener('click', handleCreatorClick);
-          creatorLink.addEventListener('touchend', handleCreatorClick);
 
           artistEl.appendChild(creatorLink);
           card.appendChild(artistEl);
@@ -2452,12 +2450,12 @@
             ops.className = 'filter-ops';
 
             const link = document.createElement('a');
-            link.href = '#';
+            link.href = 'javascript:void(0)';
             link.textContent = val;
             link.className = 'field-link';
 
             // Klick på själva länken: nollställ andra filter och sök bara på detta värde
-            const handleLinkClick = (e) => {
+            link.onclick = (e) => {
               e.preventDefault();
               e.stopPropagation();
 
@@ -2485,10 +2483,8 @@
               }
 
               runSearchFromForm();
+              return false;
             };
-
-            link.addEventListener('click', handleLinkClick);
-            link.addEventListener('touchend', handleLinkClick);
 
             ops.appendChild(link);
 
