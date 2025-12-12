@@ -2403,15 +2403,19 @@
           creatorLink.style.color = 'inherit';
           creatorLink.style.textDecoration = 'none';
 
-          creatorLink.addEventListener('click', (e) => {
+          const handleCreatorClick = (e) => {
             e.preventDefault();
+            e.stopPropagation();
             clearAllFilters();
             const fieldEl = document.getElementById('creatorInput');
             if (fieldEl) {
               fieldEl.value = creator;
             }
             runSearchFromForm();
-          });
+          };
+
+          creatorLink.addEventListener('click', handleCreatorClick);
+          creatorLink.addEventListener('touchend', handleCreatorClick);
 
           artistEl.appendChild(creatorLink);
           card.appendChild(artistEl);
@@ -2446,8 +2450,9 @@
             link.className = 'field-link';
 
             // Klick på själva länken: nollställ andra filter och sök bara på detta värde
-            link.addEventListener('click', (e) => {
+            const handleLinkClick = (e) => {
               e.preventDefault();
+              e.stopPropagation();
 
               const targetKey = key;
               let targetVal = val.toString().trim();
@@ -2473,7 +2478,10 @@
               }
 
               runSearchFromForm();
-            });
+            };
+
+            link.addEventListener('click', handleLinkClick);
+            link.addEventListener('touchend', handleLinkClick);
 
             ops.appendChild(link);
 
