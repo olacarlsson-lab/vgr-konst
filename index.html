@@ -255,6 +255,77 @@
       color: var(--text-main);
     }
 
+    /* Active Filters */
+    .active-filters {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      background: var(--panel-bg);
+      border: 1px solid var(--border-soft);
+      border-radius: 12px;
+    }
+
+    .clear-all-filters-btn {
+      margin-left: auto;
+      padding: 4px 12px;
+      background: transparent;
+      border: 1px solid var(--border-soft);
+      border-radius: 16px;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all .18s;
+      white-space: nowrap;
+    }
+
+    .clear-all-filters-btn:hover {
+      background: var(--border-soft);
+      color: var(--text-main);
+      border-color: var(--text-muted);
+    }
+
+    .filter-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: var(--chip-bg);
+      border: 1px solid var(--border-soft);
+      border-radius: 20px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+    }
+
+    .filter-chip-label {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .filter-chip-remove {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0;
+      margin: 0;
+      font-size: 1.1rem;
+      line-height: 1;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all .18s;
+    }
+
+    .filter-chip-remove:hover {
+      background: var(--border-soft);
+      color: var(--text-main);
+    }
+
     .toggle-advanced-btn {
       padding: .75rem 1.2rem;
       border: 1px solid var(--btn-secondary-border);
@@ -593,6 +664,11 @@
       font-weight: 500;
       color: var(--brand);
       margin-bottom: 8px;
+    }
+
+    .card-artist a.field-link:hover {
+      text-decoration: underline;
+      cursor: pointer;
     }
 
     .kv {
@@ -1013,6 +1089,11 @@
         <button type="button" id="clearSearchBtn" class="clear-search-btn" aria-label="Rensa sökning" title="Rensa sökning">×</button>
       </div>
       <button type="button" id="toggleAdvanced" class="toggle-advanced-btn" aria-expanded="false" aria-controls="advancedFilters">Avancerade filter</button>
+    </div>
+
+    <!-- Active Filters Display -->
+    <div id="activeFiltersContainer" style="display:none; margin-top:12px;">
+      <div id="activeFilters" class="active-filters" role="status" aria-live="polite"></div>
     </div>
 
     <!-- Advanced Filters (Collapsible) -->
@@ -1819,6 +1900,87 @@
       window.history.replaceState({}, '', url);
 
       performSearch(params);
+      updateActiveFilters(params);
+    }
+
+    // ======= Active Filters Display =======
+    function updateActiveFilters(params) {
+      const container = document.getElementById('activeFiltersContainer');
+      const filtersDiv = document.getElementById('activeFilters');
+
+      // Rensa befintliga filter
+      filtersDiv.innerHTML = '';
+
+      // Räkna hur många filter som är aktiva
+      const filterCount = Object.keys(params).length;
+
+      if (filterCount === 0) {
+        container.style.display = 'none';
+        return;
+      }
+
+      container.style.display = 'block';
+
+      // Skapa filter-chips för varje aktivt filter
+      for (const [key, value] of Object.entries(params)) {
+        const chip = document.createElement('div');
+        chip.className = 'filter-chip';
+
+        // Hitta läsbart namn för filtret
+        const labelMap = {
+          'creator': 'Konstnär',
+          'title': 'Titel',
+          'created': 'År',
+          'artform': 'Konsttyp',
+          'artmedium': 'Teknik',
+          'id': 'VG-nummer',
+          'older id': 'Äldre ID'
+        };
+
+        const label = labelMap[key] || key;
+
+        const labelSpan = document.createElement('span');
+        labelSpan.className = 'filter-chip-label';
+        labelSpan.textContent = label + ':';
+
+        const valueSpan = document.createElement('span');
+        valueSpan.textContent = value;
+
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'filter-chip-remove';
+        removeBtn.innerHTML = '×';
+        removeBtn.title = `Ta bort filter: ${label}`;
+        removeBtn.setAttribute('aria-label', `Ta bort filter för ${label}`);
+
+        removeBtn.addEventListener('click', () => {
+          // Hitta rätt input-fält och rensa det
+          const fieldId = inputIdMap[key];
+          const fieldEl = document.getElementById(fieldId);
+          if (fieldEl) {
+            fieldEl.value = '';
+          }
+          runSearchFromForm();
+        });
+
+        chip.appendChild(labelSpan);
+        chip.appendChild(valueSpan);
+        chip.appendChild(removeBtn);
+        filtersDiv.appendChild(chip);
+      }
+
+      // Lägg till "Rensa alla"-knapp
+      const clearAllBtn = document.createElement('button');
+      clearAllBtn.className = 'clear-all-filters-btn';
+      clearAllBtn.textContent = 'Rensa alla';
+      clearAllBtn.title = 'Rensa alla aktiva filter';
+      clearAllBtn.setAttribute('aria-label', 'Rensa alla aktiva filter');
+
+      clearAllBtn.addEventListener('click', () => {
+        clearAllFilters();
+        runSearchFromForm();
+      });
+
+      filtersDiv.appendChild(clearAllBtn);
     }
 
     // ======= Urval (med anteckning + datasnapshot) =======
@@ -2211,11 +2373,29 @@
         titleEl.textContent = title;
         card.appendChild(titleEl);
 
-        // Create artist element (if exists)
+        // Create artist element (if exists) - make it clickable
         if (creator) {
           const artistEl = document.createElement('div');
           artistEl.className = 'card-artist';
-          artistEl.textContent = creator;
+
+          const creatorLink = document.createElement('a');
+          creatorLink.href = '#';
+          creatorLink.textContent = creator;
+          creatorLink.className = 'field-link';
+          creatorLink.style.color = 'inherit';
+          creatorLink.style.textDecoration = 'none';
+
+          creatorLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            clearAllFilters();
+            const fieldEl = document.getElementById('creatorInput');
+            if (fieldEl) {
+              fieldEl.value = creator;
+            }
+            runSearchFromForm();
+          });
+
+          artistEl.appendChild(creatorLink);
           card.appendChild(artistEl);
         }
 
@@ -2594,6 +2774,8 @@
             'older id': query
           };
           performUniversalSearch(params);
+          // Dölj aktiva filter vid universalsökning
+          document.getElementById('activeFiltersContainer').style.display = 'none';
         } else {
           // If search is empty, show all results
           runSearchFromForm();
