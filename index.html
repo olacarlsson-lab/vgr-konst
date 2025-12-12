@@ -668,8 +668,12 @@
 
     .card-artist a.field-link {
       display: inline-block;
-      min-height: 24px;
       -webkit-tap-highlight-color: rgba(56, 189, 248, 0.2);
+      -webkit-user-select: none;
+      user-select: none;
+      touch-action: manipulation;
+      padding: 8px 4px;
+      margin: -8px -4px;
     }
 
     .card-artist a.field-link:hover {
@@ -716,9 +720,12 @@
       cursor: pointer;
       margin-right: 3px;
       display: inline-block;
-      min-height: 24px;
       -webkit-tap-highlight-color: rgba(56, 189, 248, 0.2);
-      padding: 2px 0;
+      -webkit-user-select: none;
+      user-select: none;
+      touch-action: manipulation;
+      padding: 8px 4px;
+      margin: -8px -4px;
     }
 
     .v a.field-link:hover {
