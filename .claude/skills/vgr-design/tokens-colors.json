@@ -1,0 +1,383 @@
+{
+  "$source": "github.com/Vastra-Gotalandsregionen/designsystem-ios — Assets.xcassets/Colors. 92 tokens med light/dark.",
+  "accent": {
+    "brown": {
+      "light": "#6B5B55",
+      "dark": "#BAA7A1"
+    },
+    "browngraphic": {
+      "light": "#A48C83",
+      "dark": "#D0C4BF"
+    },
+    "brownsurface": {
+      "light": "#E7E1DF",
+      "dark": "#514440"
+    },
+    "brownsurfacebold": {
+      "light": "#D0C4BF",
+      "dark": "#A48C83"
+    },
+    "brownsurfacefixed": {
+      "light": "#E7E1DF",
+      "dark": "#E7E1DF"
+    },
+    "brownsurfaceminimal": {
+      "light": "#F3F0EF",
+      "dark": "#372F2B"
+    },
+    "cyan": {
+      "light": "#116875",
+      "dark": "#20BBD3"
+    },
+    "cyangraphic": {
+      "light": "#1A9FB3",
+      "dark": "#74D5E4"
+    },
+    "cyansurface": {
+      "light": "#BCEBF2",
+      "dark": "#0D4E58"
+    },
+    "cyansurfacebold": {
+      "light": "#74D5E4",
+      "dark": "#1A9FB3"
+    },
+    "cyansurfaceminimal": {
+      "light": "#DEF5F9",
+      "dark": "#09363C"
+    },
+    "green": {
+      "light": "#2C6B2E",
+      "dark": "#4FC254"
+    },
+    "greengraphic": {
+      "light": "#43A447",
+      "dark": "#7ADC7E"
+    },
+    "greensurface": {
+      "light": "#C0EEC2",
+      "dark": "#215023"
+    },
+    "greensurfacebold": {
+      "light": "#7ADC7E",
+      "dark": "#43A447"
+    },
+    "greensurfaceminimal": {
+      "light": "#E0F7E1",
+      "dark": "#173718"
+    },
+    "lime": {
+      "light": "#5C6321",
+      "dark": "#A7B33C"
+    },
+    "limegraphic": {
+      "light": "#8D9732",
+      "dark": "#CCDB49"
+    },
+    "limesurface": {
+      "light": "#E0E991",
+      "dark": "#454A19"
+    },
+    "limesurfacebold": {
+      "light": "#CCDB49",
+      "dark": "#8D9732"
+    },
+    "limesurfaceminimal": {
+      "light": "#EFF4C6",
+      "dark": "#2F3311"
+    },
+    "orange": {
+      "light": "#A63A1F",
+      "dark": "#FE8B6F"
+    },
+    "orangegraphic": {
+      "light": "#FC5930",
+      "dark": "#FEB5A2"
+    },
+    "orangesurface": {
+      "light": "#FFDBD2",
+      "dark": "#7D2C18"
+    },
+    "orangesurfacebold": {
+      "light": "#FEB5A2",
+      "dark": "#FC5930"
+    },
+    "orangesurfaceminimal": {
+      "light": "#FFEDE8",
+      "dark": "#561E10"
+    },
+    "pink": {
+      "light": "#B51D4E",
+      "dark": "#F28CAD"
+    },
+    "pinkgraphic": {
+      "light": "#EE6492",
+      "dark": "#F7BBD0"
+    },
+    "pinkgraphicfixed": {
+      "light": "#EE6492",
+      "dark": "#EE6492"
+    },
+    "pinksurface": {
+      "light": "#FBDAE5",
+      "dark": "#89163B"
+    },
+    "pinksurfacebold": {
+      "light": "#F7BBD0",
+      "dark": "#EE6492"
+    },
+    "pinksurfaceminimal": {
+      "light": "#FDEDF2",
+      "dark": "#600F29"
+    },
+    "purple": {
+      "light": "#6F45BB",
+      "dark": "#B7A1DD"
+    },
+    "purplegraphic": {
+      "light": "#9575CD",
+      "dark": "#D1C4E9"
+    },
+    "purplesurface": {
+      "light": "#E6DFF3",
+      "dark": "#553097"
+    },
+    "purplesurfacebold": {
+      "light": "#D1C4E9",
+      "dark": "#9575CD"
+    },
+    "purplesurfaceminimal": {
+      "light": "#F3EFF9",
+      "dark": "#3A2168"
+    },
+    "red": {
+      "light": "#C00000",
+      "dark": "#FF8888"
+    },
+    "redgraphic": {
+      "light": "#FF5353",
+      "dark": "#FFB3B3"
+    },
+    "redsurface": {
+      "light": "#FFDADA",
+      "dark": "#930000"
+    },
+    "redsurfacebold": {
+      "light": "#FFB3B3",
+      "dark": "#FF5353"
+    },
+    "redsurfaceminimal": {
+      "light": "#FFECEC",
+      "dark": "#690000"
+    },
+    "yellow": {
+      "light": "#8D4E18",
+      "dark": "#EF9820"
+    },
+    "yellowgraphic": {
+      "light": "#CF7E1F",
+      "dark": "#FFC107"
+    },
+    "yellowsurface": {
+      "light": "#FFDD84",
+      "dark": "#6D3912"
+    },
+    "yellowsurfacebold": {
+      "light": "#FFC107",
+      "dark": "#CF7E1F"
+    },
+    "yellowsurfaceminimal": {
+      "light": "#FFECB3",
+      "dark": "#4C270E"
+    }
+  },
+  "customized": {
+    "healthcare20": {
+      "light": "#04344D",
+      "dark": "#377495"
+    }
+  },
+  "elevation": {
+    "background": {
+      "light": "#FAF9F9",
+      "dark": "#000000"
+    },
+    "elevation1": {
+      "light": "#FFFFFF",
+      "dark": "#121212"
+    },
+    "elevation2": {
+      "light": "#FFFFFF",
+      "dark": "#303030"
+    },
+    "elevation3": {
+      "light": "#FFFFFF",
+      "dark": "#474747"
+    },
+    "elevation4": {
+      "light": "#FFFFFF",
+      "dark": "#5E5E5E"
+    },
+    "elevation5": {
+      "light": "#FFFFFF",
+      "dark": "#737373"
+    }
+  },
+  "neutral": {
+    "border": {
+      "light": "#121212",
+      "dark": "#F9F9F9"
+    },
+    "borderdisabled": {
+      "light": "#E2E2E2",
+      "dark": "#303030"
+    },
+    "disabled": {
+      "light": "#C6C6C6",
+      "dark": "#303030"
+    },
+    "disabledvariant": {
+      "light": "#F1F1F1",
+      "dark": "#5E5E5E"
+    },
+    "divider": {
+      "light": "#C6C6C6",
+      "dark": "#474747"
+    },
+    "dividervariant": {
+      "light": "#E2E2E2",
+      "dark": "#303030"
+    },
+    "surfacedisabled": {
+      "light": "#F1F1F1",
+      "dark": "#5E5E5E"
+    },
+    "text": {
+      "light": "#121212",
+      "dark": "#F9F9F9"
+    },
+    "textdisabled": {
+      "light": "#E2E2E2",
+      "dark": "#303030"
+    },
+    "textfixed": {
+      "light": "#121212",
+      "dark": "#121212"
+    },
+    "textinverted": {
+      "light": "#F9F9F9",
+      "dark": "#121212"
+    },
+    "textinvertedfixed": {
+      "light": "#F9F9F9",
+      "dark": "#F9F9F9"
+    },
+    "textvariant": {
+      "light": "#737373",
+      "dark": "#C6C6C6"
+    }
+  },
+  "primary": {
+    "action": {
+      "light": "#005B89",
+      "dark": "#8AB1C5"
+    },
+    "actionFixed": {
+      "light": "#005B89",
+      "dark": "#005B89"
+    },
+    "actioninverted": {
+      "light": "#EBF2F5",
+      "dark": "#04344D"
+    },
+    "actioninvertedfixed": {
+      "light": "#EBF2F5",
+      "dark": "#EBF2F5"
+    },
+    "actionvariant": {
+      "light": "#EBF2F5",
+      "dark": "#303030"
+    },
+    "base": {
+      "light": "#37474F",
+      "dark": "#A5ACB0"
+    },
+    "basegraphic": {
+      "light": "#899297",
+      "dark": "#C2C7CA"
+    },
+    "basesurface": {
+      "light": "#E0E3E4",
+      "dark": "#37474F"
+    },
+    "basesurfacebold": {
+      "light": "#C2C7CA",
+      "dark": "#6C787E"
+    },
+    "basesurfacefocus": {
+      "light": "#37474F",
+      "dark": "#A5ACB0"
+    },
+    "basesurfaceminimal": {
+      "light": "#F0F1F1",
+      "dark": "#273238"
+    },
+    "blue": {
+      "light": "#005B89",
+      "dark": "#8AB1C5"
+    },
+    "bluegraphic": {
+      "light": "#6497B3",
+      "dark": "#ADC8D6"
+    },
+    "bluesurface": {
+      "light": "#D7E4EC",
+      "dark": "#064B70"
+    },
+    "bluesurfacebold": {
+      "light": "#ADC8D6",
+      "dark": "#377495"
+    },
+    "bluesurfacefocus": {
+      "light": "#005B89",
+      "dark": "#8AB1C5"
+    },
+    "bluesurfaceminimal": {
+      "light": "#EBF2F5",
+      "dark": "#04344D"
+    }
+  },
+  "status": {
+    "errorsurface": {
+      "light": "#FFECEC",
+      "dark": "#690000"
+    },
+    "errortext": {
+      "light": "#C00000",
+      "dark": "#FF8888"
+    },
+    "informationsurface": {
+      "light": "#F3F0EF",
+      "dark": "#372F2B"
+    },
+    "informationtext": {
+      "light": "#6B5B55",
+      "dark": "#BAA7A1"
+    },
+    "successtext": {
+      "light": "#2C6B2E",
+      "dark": "#4FC254"
+    },
+    "successurface": {
+      "light": "#E0F7E1",
+      "dark": "#173718"
+    },
+    "warningsurface": {
+      "light": "#FFECB3",
+      "dark": "#4C270E"
+    },
+    "warningtext": {
+      "light": "#8D4E18",
+      "dark": "#EF9820"
+    }
+  }
+}
