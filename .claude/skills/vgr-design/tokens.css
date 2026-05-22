@@ -1,0 +1,111 @@
+/* VGR Designsystem — CSS-variabler.
+   Källa: tokens.json (extraherat från manualen + Färgteman-PDF, 2026-05-22). */
+
+:root {
+  /* ---------- PRIMÄRFÄRG: Base ---------- */
+  --vgr-base-20: #273238;  /* mörk text/bakgrund */
+  --vgr-base-30: #37474F;  /* ★ varumärke */
+  --vgr-base-90: #E0E3E4;  /* ljus tonad yta */
+  --vgr-base-95: #F0F1F1;  /* default ljus bakgrund */
+
+  /* ---------- PRIMÄRFÄRGSTEMAN (välj ETT per app/verksamhet) ---------- */
+  /* Kultur */
+  --vgr-culture-30: #891D1D;
+  --vgr-culture-40: #C72A2A; /* ★ */
+  --vgr-culture-90: #F6DDDD;
+  --vgr-culture-95: #FAEEEE;
+
+  /* Utbildning */
+  --vgr-education-30: #005046;
+  --vgr-education-40: #00695C; /* ★ */
+  --vgr-education-90: #D5E6E4;
+  --vgr-education-95: #EAF2F1;
+
+  /* Sjukvård — default för vårdgränssnitt */
+  --vgr-healthcare-30: #064B70;
+  --vgr-healthcare-40: #005B89; /* ★ — också länkfärg i brödtext */
+  --vgr-healthcare-90: #D7E4EC;
+  --vgr-healthcare-95: #EBF2F5;
+
+  /* ---------- KOMPLEMENTFÄRGER (max 2 per app) ---------- */
+  --vgr-brown-80: #D0C4BF;
+  --vgr-brown-95: #F3F0EF;
+  --vgr-complement-healthcare-80: #ADC8D6;
+  --vgr-complement-healthcare-95: #EBF2F5;
+  --vgr-pink-80: #F7BBD0; /* ★ */
+  --vgr-pink-95: #FDEDF2;
+  --vgr-yellow-80: #FFC107; /* ★ */
+  --vgr-yellow-95: #FFECB3;
+
+  /* ---------- BAKGRUND ---------- */
+  --vgr-bg-warm:    #FAF9F9; /* Brown 99 — varm vit, ger lyft för vita ytor */
+  --vgr-bg-white:   #FFFFFF; /* Neutral 100 ★ */
+
+  /* ---------- SEMANTISKA ALIAS ----------
+     Mappa dessa per app baserat på vald verksamhet. Defaulten är Healthcare. */
+  --vgr-color-primary:        var(--vgr-healthcare-40);
+  --vgr-color-primary-dark:   var(--vgr-healthcare-30);
+  --vgr-color-primary-tint:   var(--vgr-healthcare-90);
+  --vgr-color-primary-soft:   var(--vgr-healthcare-95);
+  --vgr-color-link:           var(--vgr-healthcare-40);
+
+  /* Status */
+  --vgr-status-alarm:   var(--vgr-culture-40);
+  --vgr-status-warning: var(--vgr-yellow-80);
+  --vgr-status-info:    var(--vgr-base-30);
+  --vgr-status-success: var(--vgr-education-40);
+
+  /* ---------- TYPOGRAFI ---------- */
+  --vgr-font-web:     Verdana, sans-serif;
+  --vgr-font-ios:     "SF Pro", -apple-system, BlinkMacSystemFont, sans-serif;
+  --vgr-font-android: Roboto, sans-serif;
+
+  /* ---------- SPACING ---------- */
+  --vgr-space-xs: 4px;
+  --vgr-space-sm: 8px;
+  --vgr-space-md: 12px;
+  --vgr-space-lg: 24px;   /* mellan komponenter / safearea */
+  --vgr-space-xl: 32px;   /* mellan grupper */
+
+  /* ---------- RADIER ---------- */
+  --vgr-radius-sm: 4px;
+  --vgr-radius-md: 8px;
+  --vgr-radius-lg: 16px;
+  --vgr-radius-pill: 9999px;
+
+  /* ---------- ELEVATION ---------- */
+  --vgr-shadow-1: 0 1px 2px rgba(0,0,0,.06);
+  --vgr-shadow-2: 0 2px 6px rgba(0,0,0,.08);
+  --vgr-shadow-3: 0 8px 24px rgba(0,0,0,.12);
+
+  /* ---------- MOTION ---------- */
+  --vgr-motion-fast: 120ms;
+  --vgr-motion-base: 200ms;
+  --vgr-motion-slow: 320ms;
+  --vgr-ease-standard: cubic-bezier(.2,.0,.0,1);
+}
+
+/* ---------- TEMA-VARIANTER ----------
+   Lägg en av dessa klasser på <html> eller <body> för att byta primärfärgstema. */
+.theme-culture {
+  --vgr-color-primary:      var(--vgr-culture-40);
+  --vgr-color-primary-dark: var(--vgr-culture-30);
+  --vgr-color-primary-tint: var(--vgr-culture-90);
+  --vgr-color-primary-soft: var(--vgr-culture-95);
+}
+.theme-education {
+  --vgr-color-primary:      var(--vgr-education-40);
+  --vgr-color-primary-dark: var(--vgr-education-30);
+  --vgr-color-primary-tint: var(--vgr-education-90);
+  --vgr-color-primary-soft: var(--vgr-education-95);
+}
+.theme-healthcare {
+  --vgr-color-primary:      var(--vgr-healthcare-40);
+  --vgr-color-primary-dark: var(--vgr-healthcare-30);
+  --vgr-color-primary-tint: var(--vgr-healthcare-90);
+  --vgr-color-primary-soft: var(--vgr-healthcare-95);
+}
+
+/* ---------- BREAKPOINTS (referens) ----------
+   mobile: 320–768px | tablet: 768–1200px | desktop: 1200–1920px
+   min-bredd komponent: 220px | max komponenter per rad: 4 + vänstermeny */
